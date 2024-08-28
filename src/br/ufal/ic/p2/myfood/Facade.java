@@ -1,7 +1,6 @@
 package br.ufal.ic.p2.myfood;
 
-import br.ufal.ic.p2.myfood.Modelos.Exception.NomeInvalidoException;
-import br.ufal.ic.p2.myfood.Modelos.Exception.UsuarioNaoCadastradoException;
+import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 import br.ufal.ic.p2.myfood.Modelos.Sistema;
 
 public class Facade {
@@ -18,15 +17,17 @@ public class Facade {
 
 
     //Cliente
-    public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException {
+    public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
         sistema.criarUsuario(nome, email, senha, endereco);
     }
 
     //Dono
-    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException {
+    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
         sistema.criarUsuario(nome, email, senha, endereco, cpf);
     }
-
+    public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
+        return sistema.login(email, senha);
+    }
 
 
 }

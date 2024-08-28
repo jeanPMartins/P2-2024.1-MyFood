@@ -30,7 +30,7 @@
 # retorno: Sem retorno
 #
 # criarUsuario(String: nome, String: email, String: senha, String: endereco ,String: cpf)
-# descrição: Cria um usuário do tipo dono de restaurante.
+# descrição:Cria um usuário do tipo dono de restaurante.
 # retorno: Sem retorno
 #
 # login(String: email, String: senha)
@@ -49,7 +49,7 @@ expectError "Usuario nao cadastrado." getAtributoUsuario id=9999 atributo="nome"
 
 criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha="123senha" endereco="Rua Exemplo N 123"
 
-# Se a senha estiver correta, a sessão é aberta e o teste passa sem erros. 
+# Se a senha estiver correta, a sessão é aberta e o teste passa sem erros.
 # Se existir algum erro, o programa vai lançar uma exceção e o EasyAccept vai acusar erro nessa linha.
 id1=login email="carlos@ufal.com.br" senha="123senha"
 
@@ -67,7 +67,7 @@ id2=login email="carlos2@ufal.com.br" senha="123senha"
 
 expect "Carlos" getAtributoUsuario id=${id1} atributo="nome"
 expect "carlos@ufal.com.br" getAtributoUsuario id=${id1} atributo="email"
-expect "Rua Exemplo N 123" getAtributoUsuario id=${id1} atributo="endereco" 
+expect "Rua Exemplo N 123" getAtributoUsuario id=${id1} atributo="endereco"
 
 expect "CarlosDono" getAtributoUsuario id=${id2} atributo="nome"
 expect "carlos2@ufal.com.br" getAtributoUsuario id=${id2} atributo="email"
@@ -87,11 +87,11 @@ expectError "Email invalido" criarUsuario nome="Carlos" email=""  senha="123senh
 expectError "Senha invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha=  endereco="Rua Exemplo N 123"
 expectError "Senha invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha=""  endereco="Rua Exemplo N 123"
 
-expectError "Endereco invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha="123senha" endereco=  
-expectError "Endereco invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha="123senha" endereco=""  
+expectError "Endereco invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha="123senha" endereco=
+expectError "Endereco invalido" criarUsuario nome="Carlos" email="carlos@ufal.com.br" senha="123senha" endereco=""
 
-expectError "CPF invalido" criarUsuario nome="CarlosDono" email="carlos2@ufal.com.br" senha="123senha", endereco="Rua Exemplo N 123" cpf=  
-expectError "CPF invalido" criarUsuario nome="CarlosDono" email="carlos2@ufal.com.br" senha="123senha", endereco="Rua Exemplo N 123" cpf=""  
+expectError "CPF invalido" criarUsuario nome="CarlosDono" email="carlos2@ufal.com.br" senha="123senha", endereco="Rua Exemplo N 123" cpf=
+expectError "CPF invalido" criarUsuario nome="CarlosDono" email="carlos2@ufal.com.br" senha="123senha", endereco="Rua Exemplo N 123" cpf=""
 
 expectError "Endereco invalido" criarUsuario nome="CarlosDono" email="carlos2@ufal.com.br" senha="123senha" endereco="" cpf="544.732.410-68"
 
@@ -105,7 +105,7 @@ expectError "Email invalido" criarUsuario nome="CarlosDono" email="carlos2" senh
 expectError "Login ou senha invalidos" login email="carlos@ufal.com.br" senha="abc"
 expectError "Login ou senha invalidos" login email="abc" senha="abc"
 expectError "Login ou senha invalidos" login email=  senha="abc"
-expectError "Login ou senha invalidos" login email="carlos@ufal.com.br" senha=  
+expectError "Login ou senha invalidos" login email="carlos@ufal.com.br" senha=
 
 encerrarSistema
 quit
