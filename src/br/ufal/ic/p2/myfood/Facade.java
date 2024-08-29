@@ -8,7 +8,10 @@ public class Facade {
     Sistema sistema = new Sistema();
 
     public void zerarSistema(){
-
+        sistema.zerarSistema();
+    }
+    public void encerrarSistema(){
+        sistema.encerrarSistema();
     }
 
     public String getAtributoUsuario(int id, String nome) throws UsuarioNaoCadastradoException {
@@ -22,7 +25,7 @@ public class Facade {
     }
 
     //Dono
-    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
+    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException {
         sistema.criarUsuario(nome, email, senha, endereco, cpf);
     }
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {

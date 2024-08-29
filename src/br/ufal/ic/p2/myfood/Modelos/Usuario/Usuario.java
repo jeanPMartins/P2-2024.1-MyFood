@@ -5,12 +5,14 @@ public class Usuario {
     String nome;
     String email;
     String senha;
+    String endereco;
 
-    public Usuario(int id, String nome, String email, String senha){
+    public Usuario(int id, String nome, String email, String senha, String endereco) {
         this.email = email;
         this.id = id;
         this.nome = nome;
         this.senha = senha;
+        this.endereco = endereco;
     }
     public String getNome() {
         return nome;
@@ -23,5 +25,8 @@ public class Usuario {
     }
     public String getSenha() {
         return senha;
+    }
+    public String getEndereco(){
+        return endereco;
     }
 }
