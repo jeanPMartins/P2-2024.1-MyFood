@@ -5,71 +5,54 @@ import br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Dono;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario;
 
-import java.util.ArrayList;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
+
+import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 
 public class Sistema {
 
-    private int contadorID = 1;
+    private int contadorID = 0;
+    private Map<Integer, Usuario> usuarios = new HashMap<>();
 
-    Map<Integer, Usuario> usuarios = new HashMap<>();
-    Map<String, Usuario> usuariosPorEmail = new HashMap<>();
-
-    public void zerarSistema(){
+    public Sistema(){
+        carregarUsuarios("data.xml");
+    }
+    // Zera o sistema
+    public void zerarSistema() {
         usuarios.clear();
         usuariosPorEmail.clear();
     }
-    public void encerrarSistema(){
+
+    // Encerra o sistema
+    public void encerrarSistema() {
+        salvarUsuarios("data.xml");
         System.out.println("Sistema Encerrado");
     }
-    //cria cliente
+
+    // Cria cliente
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
-        validarDados(nome, email, senha, endereco);
-        if(validarEmail(email)){
-            throw new EmailJaExisteException();
-        }
-        Cliente cliente = new Cliente(contadorID, nome, email, senha, endereco);
+        Cliente cliente = Usuario.criarUsuario(contadorID, nome, email, senha, endereco);
         usuarios.put(cliente.getId(), cliente);
-        usuariosPorEmail.put(email, cliente);
-        contadorID++;
-    }
-    public boolean validarEmail(String email){
-        return usuariosPorEmail.containsKey(email);
-    }
-    //cria dono
-    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException {
-        validarDados(nome, email, senha, endereco);
-        validarCpf(cpf);
-        Dono dono = new Dono(contadorID, nome, email, senha, endereco, cpf);
-        usuarios.put(dono.getId(), dono);
-        usuariosPorEmail.put(email, dono);
         contadorID++;
     }
 
-    public void validarDados(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailInvalidoException, SenhaInvalidaException, EnderecoInvalidoException {
-        if (nome == null || nome.isEmpty()){
-            throw new NomeInvalidoException();
-        }
-        if (email == null || email.isEmpty() || !Pattern.matches("^[\\w\\.-]+@[a-zA-Z\\d\\.-]+\\.[a-zA-Z]{2,}$", email)){
-            throw new EmailInvalidoException();
-        }
-        if (senha == null || senha.isEmpty()){
-            throw new SenhaInvalidaException();
-        }
-        if (endereco == null || endereco.isEmpty()){
-            throw new EnderecoInvalidoException();
-        }
+    // Cria dono
+    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
+        Dono dono = Usuario.criarUsuario(contadorID, nome, email, senha, endereco, cpf);
+        usuarios.put(dono.getId(), dono);
+        contadorID++;
     }
-    public void validarCpf(String cpf) throws CpfInvalidoException {
-        if (cpf == null || cpf.length() != 14){
-            throw new CpfInvalidoException();
-        }
-    }
-    public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException{
+
+    // Login de usuário
+    public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
         Usuario usuario = usuariosPorEmail.get(email);
-        if (usuario == null){
+        if (usuario == null) {
             throw new LoginInvalidoException();
         } else if (usuario.getEmail().equals(email) && usuario.getSenha().equals(senha)) {
             return usuario.getId();
@@ -78,12 +61,13 @@ public class Sistema {
         }
     }
 
+    // Obtém atributo de um usuário
     public String getAtributoUsuario(int id, String atributo) throws UsuarioNaoCadastradoException {
         if (!usuarios.containsKey(id)) {
             throw new UsuarioNaoCadastradoException();
         } else {
             Usuario usuario = usuarios.get(id);
-            switch (atributo){
+            switch (atributo) {
                 case "nome":
                     return usuario.getNome();
                 case "senha":
@@ -93,11 +77,46 @@ public class Sistema {
                 case "endereco":
                     return usuario.getEndereco();
                 case "cpf":
-                    if(usuario instanceof Dono){
+                    if (usuario instanceof Dono) {
                         return ((Dono) usuario).getCpf();
                     }
             }
         }
         return "";
+    }
+
+    // Salva os usuários em um arquivo XML
+    public void salvarUsuarios(String caminhoArquivo) {
+        try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(caminhoArquivo))) {
+            encoder.writeObject(usuarios);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Carrega os usuários a partir de um arquivo XML
+    public void carregarUsuarios(String caminhoArquivo) {
+        try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(caminhoArquivo))) {
+            Object obj = decoder.readObject();
+            if (obj instanceof Map<?, ?>) {
+                Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) obj;
+                usuarios.clear();
+                usuarios.putAll(usuariosCarregados);
+                for (Map.Entry<Integer, Usuario> entrada : usuarios.entrySet()) {
+                    System.out.println("ID: " + entrada.getKey() + ", Usuario: " + entrada.getValue());
+                }
+                atualizarUsuariosPorEmail();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Atualiza o mapa de usuários por email com base no mapa de usuários
+    private void atualizarUsuariosPorEmail() {
+        usuariosPorEmail.clear();
+        for (Usuario usuario : usuarios.values()) {
+            usuariosPorEmail.put(usuario.getEmail(), usuario);
+        }
     }
 }

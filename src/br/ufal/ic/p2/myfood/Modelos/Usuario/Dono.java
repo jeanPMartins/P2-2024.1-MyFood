@@ -7,8 +7,13 @@ public class Dono extends Usuario {
         super(id, nome, email, senha, endereco);
         this.cpf = cpf;
     }
+    public Dono(){
 
+    }
     public String getCpf(){
         return cpf;
+    }
+    public void setCpf(String cpf){
+        this.cpf = cpf;
     }
 }

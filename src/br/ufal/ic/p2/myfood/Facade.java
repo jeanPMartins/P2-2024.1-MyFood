@@ -25,7 +25,7 @@ public class Facade {
     }
 
     //Dono
-    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException {
+    public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
         sistema.criarUsuario(nome, email, senha, endereco, cpf);
     }
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
