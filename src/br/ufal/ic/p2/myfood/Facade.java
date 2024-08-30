@@ -32,5 +32,9 @@ public class Facade {
         return sistema.login(email, senha);
     }
 
+    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException {
+        sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, tipoCozinha);
+    }
+
 
 }

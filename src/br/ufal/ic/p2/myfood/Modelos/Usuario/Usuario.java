@@ -18,7 +18,6 @@ public class Usuario {
     // Construtor padrão necessário para XMLDecoder
     public Usuario() {
     }
-
     public Usuario(int id, String nome, String email, String senha, String endereco) {
         this.id = id;
         this.nome = nome;

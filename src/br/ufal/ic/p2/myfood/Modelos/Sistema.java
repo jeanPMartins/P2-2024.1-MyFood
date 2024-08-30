@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.myfood.Modelos;
 
+import br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa;
+import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Dono;
@@ -17,8 +19,10 @@ import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 
 public class Sistema {
 
-    private int contadorID = 0;
+    private int usuarioID = 0;
+    private int empresaID = 0;
     private Map<Integer, Usuario> usuarios = new HashMap<>();
+    private Map<Integer, Empresa> empresas = new HashMap<>();
 
     public Sistema(){
         carregarUsuarios("data.xml");
@@ -37,16 +41,16 @@ public class Sistema {
 
     // Cria cliente
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
-        Cliente cliente = Usuario.criarUsuario(contadorID, nome, email, senha, endereco);
+        Cliente cliente = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco);
         usuarios.put(cliente.getId(), cliente);
-        contadorID++;
+        usuarioID++;
     }
 
     // Cria dono
     public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
-        Dono dono = Usuario.criarUsuario(contadorID, nome, email, senha, endereco, cpf);
+        Dono dono = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco, cpf);
         usuarios.put(dono.getId(), dono);
-        contadorID++;
+        usuarioID++;
     }
 
     // Login de usuário
@@ -102,9 +106,6 @@ public class Sistema {
                 Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) obj;
                 usuarios.clear();
                 usuarios.putAll(usuariosCarregados);
-                for (Map.Entry<Integer, Usuario> entrada : usuarios.entrySet()) {
-                    System.out.println("ID: " + entrada.getKey() + ", Usuario: " + entrada.getValue());
-                }
                 atualizarUsuariosPorEmail();
             }
         } catch (IOException e) {
@@ -118,5 +119,11 @@ public class Sistema {
         for (Usuario usuario : usuarios.values()) {
             usuariosPorEmail.put(usuario.getEmail(), usuario);
         }
+    }
+
+    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException {
+        Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, dono, nome, endereco, tipoCozinha);
+        empresas.put(restaurante.getId(), restaurante);
+        empresaID++;
     }
 }
