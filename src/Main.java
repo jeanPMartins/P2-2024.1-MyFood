@@ -5,7 +5,7 @@ public class Main {
         String[] args2 = {"br.ufal.ic.p2.myfood.Facade",
 //                "tests/us1_1.txt",
 //                "tests/us1_2.txt",
-                "tests/us2_1.txt",
+//                "tests/us2_1.txt",
 //                "tests/us2_2.txt",
 //                "tests/us3_1.txt",
 //                "tests/us3_2.txt",
@@ -15,5 +15,3 @@ public class Main {
         EasyAccept.main(args2);
     }
 }
-
-//teste 1 OK

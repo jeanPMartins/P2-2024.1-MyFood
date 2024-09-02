@@ -86,7 +86,7 @@ public class Sistema {
                     }
             }
         }
-        return "";
+        return null;
     }
 
     // Salva os usuários em um arquivo XML
@@ -120,10 +120,61 @@ public class Sistema {
             usuariosPorEmail.put(usuario.getEmail(), usuario);
         }
     }
-
-    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException {
-        Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, dono, nome, endereco, tipoCozinha);
-        empresas.put(restaurante.getId(), restaurante);
-        empresaID++;
+    //corrigir exception q eu nao faço ideia do pq ta errado
+    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+        for (Usuario usuario : usuarios.values()) {
+            if(usuario.getId() == dono) {
+                if(usuario instanceof Dono) {
+                    Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, tipoCozinha);
+                    empresas.put(restaurante.getId(), restaurante);
+                    empresaID++;
+                } else {
+                    throw new UsuarioNaoPodeCriarException();
+                }
+            }
+        }
     }
+    //corrigir retorno das empresas
+    public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
+        String result = "{[";
+        for (Usuario usuario : usuarios.values()) {
+            if (usuario.getId() == id) {
+                if (usuario instanceof Dono) {
+                    for (Empresa empresa : empresas.values()) {
+                        while (empresa.getDono() == id) {
+                            String obj = "[" + empresas.get(usuario.getId()).getNome() + empresas.get(usuario.getId()).getEndereco() + "]";
+                            result += obj;
+                        }
+                    }
+                    result += "]}";
+                    return result;
+                } else {
+                    throw new UsuarioNaoPodeCriarException();
+                }
+            }
+        }
+        return null;
+    }
+//    public String getAtributoEmpresa(int id, String atributo) throws  {
+//        if (!usuarios.containsKey(id)) {
+//            throw new UsuarioNaoCadastradoException();
+//        } else {
+//            Usuario usuario = usuarios.get(id);
+//            switch (atributo) {
+//                case "nome":
+//                    return usuario.getNome();
+//                case "senha":
+//                    return usuario.getSenha();
+//                case "email":
+//                    return usuario.getEmail();
+//                case "endereco":
+//                    return usuario.getEndereco();
+//                case "cpf":
+//                    if (usuario instanceof Dono) {
+//                        return ((Dono) usuario).getCpf();
+//                    }
+//            }
+//        }
+//        return null;
+//    }
 }

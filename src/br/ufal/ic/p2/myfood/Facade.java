@@ -32,9 +32,11 @@ public class Facade {
         return sistema.login(email, senha);
     }
 
-    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException {
+    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, UsuarioNaoPodeCriarException {
         sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, tipoCozinha);
     }
-
+    public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
+        return sistema.getEmpresasDoUsuario(id);
+    }
 
 }

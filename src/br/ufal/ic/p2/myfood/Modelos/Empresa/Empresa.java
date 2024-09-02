@@ -1,7 +1,6 @@
 package br.ufal.ic.p2.myfood.Modelos.Empresa;
 
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
-import br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +13,8 @@ public class Empresa {
     private String endereco;
 
     public static Map<String, Empresa> empresasPorNome = new HashMap<>();
+    public static Map<String, Empresa> empresasPorEndereco = new HashMap<>();
+    public static Map<Integer, Empresa> empresasPorDono = new HashMap<>();
 
     // Construtor padrão necessário para XMLDecoder
     public Empresa() {}
@@ -25,6 +26,9 @@ public class Empresa {
     }
 
     public Empresa(int id, String nome, String endereco) {
+        this.id = id;
+        this.nome = nome;
+        this.endereco = endereco;
     }
 
     public int getId() {
@@ -52,24 +56,39 @@ public class Empresa {
         this.endereco = endereco;
     }
 
-    public static Restaurante criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException {
+    public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
         validarEmpresa(dono, nome, endereco);
-        if(validarNome(nome)){
-            throw new NomeJaExisteException();
-        }
-        return new Restaurante(dono, nome, endereco, tipoCozinha);
+        Restaurante restaurante = new Restaurante(id, nome, endereco, tipoCozinha);
+        empresasPorDono.put(dono, restaurante);
+        empresasPorNome.put(nome, restaurante);
+        empresasPorEndereco.put(endereco, restaurante);
+        return restaurante;
     }
-    public static void validarEmpresa(int dono, String nome, String endereco) throws NomeInvalidoException, EnderecoInvalidoException {
-        //fazer verificaçao de dono?
-        if (nome == null || nome.isEmpty()){
+    public static void validarEmpresa(int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+        if (nome == null || nome.isEmpty()) {
             throw new NomeInvalidoException();
         }
-        if (endereco == null || endereco.isEmpty()){
+        if (endereco == null || endereco.isEmpty()) {
             throw new EnderecoInvalidoException();
         }
-    }
-    public static boolean validarNome(String nome){
-        return empresasPorNome.containsKey(nome);
+        if (dono < 1 || dono > 100) {
+            throw new EnderecoInvalidoException();
+        }
+        Empresa teste = null;
+        for (Empresa e : empresasPorNome.values()) {
+            if (nome.equals(e.getNome())) {
+                teste = e;
+                break;
+            }
+        }
+        if (teste != null) {
+            if (teste.getDono() == dono) {
+                throw new NomeJaExisteException();
+            } else {
+                if (teste.getEndereco().equals(endereco)) {
+                    throw new EnderecoJaExisteException();
+                }
+            }
+        }
     }
 }
-
