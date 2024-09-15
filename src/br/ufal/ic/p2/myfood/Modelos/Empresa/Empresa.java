@@ -3,6 +3,7 @@ package br.ufal.ic.p2.myfood.Modelos.Empresa;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Empresa {
@@ -14,7 +15,7 @@ public class Empresa {
 
     public static Map<String, Empresa> empresasPorNome = new HashMap<>();
     public static Map<String, Empresa> empresasPorEndereco = new HashMap<>();
-    public static Map<Integer, Empresa> empresasPorDono = new HashMap<>();
+    public static Map<Integer, List<Empresa>> empresasPorDono = new HashMap<>();
 
     // Construtor padrão necessário para XMLDecoder
     public Empresa() {}
@@ -26,6 +27,13 @@ public class Empresa {
     }
 
     public Empresa(int id, String nome, String endereco) {
+        this.id = id;
+        this.nome = nome;
+        this.endereco = endereco;
+    }
+
+    public Empresa(int dono, int id, String nome, String endereco) {
+        this.dono = dono;
         this.id = id;
         this.nome = nome;
         this.endereco = endereco;
@@ -58,8 +66,8 @@ public class Empresa {
 
     public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
         validarEmpresa(dono, nome, endereco);
-        Restaurante restaurante = new Restaurante(id, nome, endereco, tipoCozinha);
-        empresasPorDono.put(dono, restaurante);
+        Restaurante restaurante = new Restaurante(dono, id, nome, endereco, tipoCozinha);
+        //empresasPorDono.put(dono, (List<Empresa>) restaurante);
         empresasPorNome.put(nome, restaurante);
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
@@ -82,7 +90,7 @@ public class Empresa {
             }
         }
         if (teste != null) {
-            if (teste.getDono() == dono) {
+            if (teste.getDono() != dono) {
                 throw new NomeJaExisteException();
             } else {
                 if (teste.getEndereco().equals(endereco)) {

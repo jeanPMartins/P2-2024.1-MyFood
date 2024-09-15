@@ -38,5 +38,7 @@ public class Facade {
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
         return sistema.getEmpresasDoUsuario(id);
     }
-
+    public String getAtributoEmpresa(int id, String atributo) throws EmpresaNaoCadastradaException {
+        return sistema.getAtributoEmpresa(id, atributo);
+    }
 }

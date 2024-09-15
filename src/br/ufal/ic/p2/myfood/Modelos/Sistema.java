@@ -24,9 +24,10 @@ public class Sistema {
     private Map<Integer, Usuario> usuarios = new HashMap<>();
     private Map<Integer, Empresa> empresas = new HashMap<>();
 
-    public Sistema(){
+    public Sistema() {
         carregarUsuarios("data.xml");
     }
+
     // Zera o sistema
     public void zerarSistema() {
         usuarios.clear();
@@ -120,11 +121,11 @@ public class Sistema {
             usuariosPorEmail.put(usuario.getEmail(), usuario);
         }
     }
-    //corrigir exception q eu nao faço ideia do pq ta errado
+
     public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
         for (Usuario usuario : usuarios.values()) {
-            if(usuario.getId() == dono) {
-                if(usuario instanceof Dono) {
+            if (usuario.getId() == dono) {
+                if (usuario instanceof Dono) {
                     Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, tipoCozinha);
                     empresas.put(restaurante.getId(), restaurante);
                     empresaID++;
@@ -134,18 +135,20 @@ public class Sistema {
             }
         }
     }
+
     //corrigir retorno das empresas
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
         String result = "{[";
         for (Usuario usuario : usuarios.values()) {
             if (usuario.getId() == id) {
                 if (usuario instanceof Dono) {
-                    for (Empresa empresa : empresas.values()) {
-                        while (empresa.getDono() == id) {
-                            String obj = "[" + empresas.get(usuario.getId()).getNome() + empresas.get(usuario.getId()).getEndereco() + "]";
-                            result += obj;
-                        }
-                    }
+//                    for (Empresa empresa : empresas.values()) {
+//                        //criar uma lista de empresas vinculadas ao dono pra facilitar
+//                        while (empresa.getDono() == id) {
+//                            String obj = "[" + empresas.get(usuario.getId()).getNome() + empresas.get(usuario.getId()).getEndereco() + "]";
+//                            result += obj;
+//                        }
+//                    }
                     result += "]}";
                     return result;
                 } else {
@@ -155,26 +158,23 @@ public class Sistema {
         }
         return null;
     }
-//    public String getAtributoEmpresa(int id, String atributo) throws  {
-//        if (!usuarios.containsKey(id)) {
-//            throw new UsuarioNaoCadastradoException();
-//        } else {
-//            Usuario usuario = usuarios.get(id);
-//            switch (atributo) {
-//                case "nome":
-//                    return usuario.getNome();
-//                case "senha":
-//                    return usuario.getSenha();
-//                case "email":
-//                    return usuario.getEmail();
-//                case "endereco":
-//                    return usuario.getEndereco();
-//                case "cpf":
-//                    if (usuario instanceof Dono) {
-//                        return ((Dono) usuario).getCpf();
-//                    }
-//            }
-//        }
-//        return null;
-//    }
+
+    public String getAtributoEmpresa(int id, String atributo) throws EmpresaNaoCadastradaException {
+        if (!empresas.containsKey(id)) {
+            throw new EmpresaNaoCadastradaException();
+        } else {
+            Empresa empresa = empresas.get(id);
+            switch (atributo) {
+                case "nome":
+                    return empresa.getNome();
+                case "endereco":
+                    return empresa.getEndereco();
+                case "tipoCozinha":
+                    if (empresa instanceof Restaurante) {
+                        return ((Restaurante) empresa).getTipoCozinha();
+                    }
+            }
+        }
+        return null;
+    }
 }
