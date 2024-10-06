@@ -12,9 +12,12 @@ import java.beans.XMLEncoder;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
 import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 
 public class Sistema {
@@ -25,7 +28,7 @@ public class Sistema {
     private Map<Integer, Empresa> empresas = new HashMap<>();
 
     public Sistema() {
-        carregarUsuarios("data.xml");
+        carregarDados("data.xml");
     }
 
     // Zera o sistema
@@ -36,7 +39,7 @@ public class Sistema {
 
     // Encerra o sistema
     public void encerrarSistema() {
-        salvarUsuarios("data.xml");
+        salvarDados("data.xml");
         System.out.println("Sistema Encerrado");
     }
 
@@ -90,91 +93,171 @@ public class Sistema {
         return null;
     }
 
-    // Salva os usuários em um arquivo XML
-    public void salvarUsuarios(String caminhoArquivo) {
+    // Salva os dados em um arquivo XML
+    public void salvarDados(String caminhoArquivo) {
         try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(caminhoArquivo))) {
-            encoder.writeObject(usuarios);
+            // Cria um mapa para armazenar todos os dados do sistema
+            Map<String, Object> dadosDoSistema = new HashMap<>();
+            dadosDoSistema.put("usuarios", usuarios);
+            dadosDoSistema.put("empresas", empresas);
+
+            // Escreve o mapa no arquivo
+            encoder.writeObject(dadosDoSistema);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Carrega os usuários a partir de um arquivo XML
-    public void carregarUsuarios(String caminhoArquivo) {
+    // Carrega os dados a partir de um arquivo XML
+    public void carregarDados(String caminhoArquivo) {
         try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(caminhoArquivo))) {
             Object obj = decoder.readObject();
             if (obj instanceof Map<?, ?>) {
-                Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) obj;
-                usuarios.clear();
-                usuarios.putAll(usuariosCarregados);
-                atualizarUsuariosPorEmail();
+                Map<String, Object> dadosCarregados = (Map<String, Object>) obj;
+
+                // Carrega usuários
+                if (dadosCarregados.containsKey("usuarios")) {
+                    Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) dadosCarregados.get("usuarios");
+                    usuarios.clear();
+                    usuarios.putAll(usuariosCarregados);
+                }
+
+                // Carrega empresas
+                if (dadosCarregados.containsKey("empresas")) {
+                    Map<Integer, Empresa> empresasCarregadas = (Map<Integer, Empresa>) dadosCarregados.get("empresas");
+                    empresas.clear();
+                    empresas.putAll(empresasCarregadas);
+                }
+
+                // Carrega empresas por dono
+                if (dadosCarregados.containsKey("empresasPorDono")) {
+                    Map<Integer, List<Empresa>> empresasPorDonoCarregadas = (Map<Integer, List<Empresa>>) dadosCarregados.get("empresasPorDono");
+                    empresasPorDono.clear();
+                    empresasPorDono.putAll(empresasPorDonoCarregadas);
+                }
+
+                // Atualiza os mapas adicionais
+                atualizarExtras();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Atualiza o mapa de usuários por email com base no mapa de usuários
-    private void atualizarUsuariosPorEmail() {
+
+    // Atualiza os mapas adicionais usados dentro das classes
+    private void atualizarExtras() {
+        // Limpa e atualiza usuariosPorEmail
         usuariosPorEmail.clear();
         for (Usuario usuario : usuarios.values()) {
             usuariosPorEmail.put(usuario.getEmail(), usuario);
         }
-    }
 
-    public void criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
-        for (Usuario usuario : usuarios.values()) {
-            if (usuario.getId() == dono) {
-                if (usuario instanceof Dono) {
-                    Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, tipoCozinha);
-                    empresas.put(restaurante.getId(), restaurante);
-                    empresaID++;
-                } else {
-                    throw new UsuarioNaoPodeCriarException();
-                }
-            }
+        // Limpa e atualiza empresasPorNome e empresasPorEndereco
+        empresasPorNome.clear();
+        empresasPorEndereco.clear();
+
+        for (Empresa empresa : empresas.values()) {
+            empresasPorNome.put(empresa.getNome(), empresa);
+            empresasPorEndereco.put(empresa.getEndereco(), empresa);
+        }
+
+        // Limpa e atualiza empresasPorDono
+        empresasPorDono.clear();
+        for (Empresa empresa : empresas.values()) {
+            empresasPorDono.computeIfAbsent(empresa.getDono(), k -> new ArrayList<>()).add(empresa);
         }
     }
 
-    //corrigir retorno das empresas
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+        if (!usuarios.containsKey(dono) || usuarios.get(dono) instanceof Cliente) {
+            throw new UsuarioNaoPodeCriarException();
+        }
+        Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, tipoCozinha);
+        empresas.put(restaurante.getId(), restaurante);
+        empresaID++;
+        return restaurante.getId();
+    }
+
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
-        String result = "{[";
-        for (Usuario usuario : usuarios.values()) {
-            if (usuario.getId() == id) {
-                if (usuario instanceof Dono) {
-//                    for (Empresa empresa : empresas.values()) {
-//                        //criar uma lista de empresas vinculadas ao dono pra facilitar
-//                        while (empresa.getDono() == id) {
-//                            String obj = "[" + empresas.get(usuario.getId()).getNome() + empresas.get(usuario.getId()).getEndereco() + "]";
-//                            result += obj;
-//                        }
-//                    }
-                    result += "]}";
-                    return result;
-                } else {
-                    throw new UsuarioNaoPodeCriarException();
+        if (usuarios.get(id) instanceof Dono) {
+            if(empresasPorDono.get(id) != null){
+                List<Empresa> empresasDoUsuario = empresasPorDono.get(id);
+                StringBuilder sb = new StringBuilder();
+                sb.append("{[");
+                for (Empresa empresa : empresasDoUsuario) {
+                    sb.append("[").append(empresa.getNome()).append(", ").append(empresa.getEndereco()).append("], ");
                 }
+                if (sb.length() > 3) {
+                    sb.setLength(sb.length() - 2);
+                }
+                sb.append("]}");
+                return sb.toString();
             }
+            else return "{[]}";
         }
-        return null;
+        else{
+            throw new UsuarioNaoPodeCriarException();
+        }
     }
 
-    public String getAtributoEmpresa(int id, String atributo) throws EmpresaNaoCadastradaException {
+    public String getAtributoEmpresa(int id, String atributo) throws EmpresaNaoCadastradaException, AtributoInvalidoException {
         if (!empresas.containsKey(id)) {
             throw new EmpresaNaoCadastradaException();
-        } else {
-            Empresa empresa = empresas.get(id);
-            switch (atributo) {
-                case "nome":
-                    return empresa.getNome();
-                case "endereco":
-                    return empresa.getEndereco();
-                case "tipoCozinha":
-                    if (empresa instanceof Restaurante) {
-                        return ((Restaurante) empresa).getTipoCozinha();
-                    }
+        }
+        if (atributo == null || atributo.isEmpty()) {
+            throw new AtributoInvalidoException();
+        }
+
+        Empresa empresa = empresas.get(id);
+
+        switch (atributo) {
+            case "nome":
+                return empresa.getNome();
+            case "endereco":
+                return empresa.getEndereco();
+            case "tipoCozinha":
+                if (empresa instanceof Restaurante) {
+                    return ((Restaurante) empresa).getTipoCozinha();
+                }
+            case "dono":
+                Usuario dono = usuarios.get(empresa.getDono());
+                if (dono != null) {
+                    return dono.getNome();
+                }
+            default:
+                throw new AtributoInvalidoException();
+        }
+    }
+
+    public int getIdEmpresa(int dono, String nome, int indice) {
+        if (nome == null || nome.isEmpty()) {
+            throw new IllegalArgumentException("Nome invalido");
+        }
+
+        List<Empresa> empresasDoDono = empresasPorDono.get(dono);
+
+        if (indice < 0) {
+            throw new IndexOutOfBoundsException("Indice invalido");
+        }
+
+        int contador = 0;
+        boolean encontrouNome = false;
+
+        for (Empresa empresa : empresasDoDono) {
+            if (empresa.getNome().equals(nome)) {
+                encontrouNome = true;
+                if (contador == indice) {
+                    return empresa.getId();
+                }
+                contador++;
             }
         }
-        return null;
+
+        if (!encontrouNome) {
+            throw new IllegalArgumentException("Nao existe empresa com esse nome");
+        }
+
+        throw new IndexOutOfBoundsException("Indice maior que o esperado");
     }
 }

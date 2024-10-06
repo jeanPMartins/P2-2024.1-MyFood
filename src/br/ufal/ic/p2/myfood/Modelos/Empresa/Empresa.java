@@ -2,6 +2,7 @@ package br.ufal.ic.p2.myfood.Modelos.Empresa;
 
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,10 @@ public class Empresa {
     public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
         validarEmpresa(dono, nome, endereco);
         Restaurante restaurante = new Restaurante(dono, id, nome, endereco, tipoCozinha);
-        //empresasPorDono.put(dono, (List<Empresa>) restaurante);
+        if (!empresasPorDono.containsKey(dono)) {
+            empresasPorDono.put(dono, new ArrayList<>());
+        }
+        empresasPorDono.get(dono).add(restaurante);
         empresasPorNome.put(nome, restaurante);
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
