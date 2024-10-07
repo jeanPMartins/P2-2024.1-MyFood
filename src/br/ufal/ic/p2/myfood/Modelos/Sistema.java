@@ -24,8 +24,10 @@ public class Sistema {
 
     private int usuarioID = 0;
     private int empresaID = 0;
+    private int produtoID = 0;
     private Map<Integer, Usuario> usuarios = new HashMap<>();
     private Map<Integer, Empresa> empresas = new HashMap<>();
+    private Map<Integer, Produto> produtos = new HashMap<>();
 
     public Sistema() {
         carregarDados("data.xml");
@@ -35,12 +37,85 @@ public class Sistema {
     public void zerarSistema() {
         usuarios.clear();
         usuariosPorEmail.clear();
+        empresas.clear();
+        empresasPorDono.clear();
+        empresasPorEndereco.clear();
+        empresasPorNome.clear();
+        produtos.clear();
     }
 
     // Encerra o sistema
     public void encerrarSistema() {
         salvarDados("data.xml");
         System.out.println("Sistema Encerrado");
+    }
+
+    // Salva os dados em um arquivo XML
+    public void salvarDados(String caminhoArquivo) {
+        try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(caminhoArquivo))) {
+            // Cria um mapa para armazenar todos os dados do sistema
+            Map<String, Object> dadosDoSistema = new HashMap<>();
+            dadosDoSistema.put("usuarios", usuarios);
+            dadosDoSistema.put("empresas", empresas);
+
+            // Escreve o mapa no arquivo
+            encoder.writeObject(dadosDoSistema);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Carrega os dados a partir de um arquivo XML
+    public void carregarDados(String caminhoArquivo) {
+        try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(caminhoArquivo))) {
+            Object obj = decoder.readObject();
+            if (obj instanceof Map<?, ?>) {
+                Map<String, Object> dadosCarregados = (Map<String, Object>) obj;
+
+                // Carrega usuários
+                if (dadosCarregados.containsKey("usuarios")) {
+                    Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) dadosCarregados.get("usuarios");
+                    usuarios.clear();
+                    usuarios.putAll(usuariosCarregados);
+                }
+
+                // Carrega empresas
+                if (dadosCarregados.containsKey("empresas")) {
+                    Map<Integer, Empresa> empresasCarregadas = (Map<Integer, Empresa>) dadosCarregados.get("empresas");
+                    empresas.clear();
+                    empresas.putAll(empresasCarregadas);
+                }
+
+                // Atualiza os mapas adicionais
+                atualizarExtras();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Atualiza os mapas adicionais usados dentro das classes
+    private void atualizarExtras() {
+        // Limpa e atualiza usuariosPorEmail
+        usuariosPorEmail.clear();
+        for (Usuario usuario : usuarios.values()) {
+            usuariosPorEmail.put(usuario.getEmail(), usuario);
+        }
+
+        // Limpa e atualiza empresasPorNome e empresasPorEndereco
+        empresasPorNome.clear();
+        empresasPorEndereco.clear();
+
+        for (Empresa empresa : empresas.values()) {
+            empresasPorNome.put(empresa.getNome(), empresa);
+            empresasPorEndereco.put(empresa.getEndereco(), empresa);
+        }
+
+        // Limpa e atualiza empresasPorDono
+        empresasPorDono.clear();
+        for (Empresa empresa : empresas.values()) {
+            empresasPorDono.computeIfAbsent(empresa.getDono(), k -> new ArrayList<>()).add(empresa);
+        }
     }
 
     // Cria cliente
@@ -93,90 +168,18 @@ public class Sistema {
         return null;
     }
 
-    // Salva os dados em um arquivo XML
-    public void salvarDados(String caminhoArquivo) {
-        try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(caminhoArquivo))) {
-            // Cria um mapa para armazenar todos os dados do sistema
-            Map<String, Object> dadosDoSistema = new HashMap<>();
-            dadosDoSistema.put("usuarios", usuarios);
-            dadosDoSistema.put("empresas", empresas);
-
-            // Escreve o mapa no arquivo
-            encoder.writeObject(dadosDoSistema);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Carrega os dados a partir de um arquivo XML
-    public void carregarDados(String caminhoArquivo) {
-        try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(caminhoArquivo))) {
-            Object obj = decoder.readObject();
-            if (obj instanceof Map<?, ?>) {
-                Map<String, Object> dadosCarregados = (Map<String, Object>) obj;
-
-                // Carrega usuários
-                if (dadosCarregados.containsKey("usuarios")) {
-                    Map<Integer, Usuario> usuariosCarregados = (Map<Integer, Usuario>) dadosCarregados.get("usuarios");
-                    usuarios.clear();
-                    usuarios.putAll(usuariosCarregados);
-                }
-
-                // Carrega empresas
-                if (dadosCarregados.containsKey("empresas")) {
-                    Map<Integer, Empresa> empresasCarregadas = (Map<Integer, Empresa>) dadosCarregados.get("empresas");
-                    empresas.clear();
-                    empresas.putAll(empresasCarregadas);
-                }
-
-                // Carrega empresas por dono
-                if (dadosCarregados.containsKey("empresasPorDono")) {
-                    Map<Integer, List<Empresa>> empresasPorDonoCarregadas = (Map<Integer, List<Empresa>>) dadosCarregados.get("empresasPorDono");
-                    empresasPorDono.clear();
-                    empresasPorDono.putAll(empresasPorDonoCarregadas);
-                }
-
-                // Atualiza os mapas adicionais
-                atualizarExtras();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // Atualiza os mapas adicionais usados dentro das classes
-    private void atualizarExtras() {
-        // Limpa e atualiza usuariosPorEmail
-        usuariosPorEmail.clear();
-        for (Usuario usuario : usuarios.values()) {
-            usuariosPorEmail.put(usuario.getEmail(), usuario);
-        }
-
-        // Limpa e atualiza empresasPorNome e empresasPorEndereco
-        empresasPorNome.clear();
-        empresasPorEndereco.clear();
-
-        for (Empresa empresa : empresas.values()) {
-            empresasPorNome.put(empresa.getNome(), empresa);
-            empresasPorEndereco.put(empresa.getEndereco(), empresa);
-        }
-
-        // Limpa e atualiza empresasPorDono
-        empresasPorDono.clear();
-        for (Empresa empresa : empresas.values()) {
-            empresasPorDono.computeIfAbsent(empresa.getDono(), k -> new ArrayList<>()).add(empresa);
-        }
-    }
-
     public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
-        if (!usuarios.containsKey(dono) || usuarios.get(dono) instanceof Cliente) {
+        Usuario usuario = usuarios.get(dono);
+        if (usuario == null) {
+            return 0;
+        }
+        if (!(usuario instanceof Dono)) {
             throw new UsuarioNaoPodeCriarException();
         }
+
         Restaurante restaurante = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, tipoCozinha);
         empresas.put(restaurante.getId(), restaurante);
-        empresaID++;
-        return restaurante.getId();
+        return empresaID++;
     }
 
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
@@ -230,15 +233,15 @@ public class Sistema {
         }
     }
 
-    public int getIdEmpresa(int dono, String nome, int indice) {
+    public int getIdEmpresa(int dono, String nome, int indice) throws NomeInvalidoException, EmpresaNaoExisteException  {
         if (nome == null || nome.isEmpty()) {
-            throw new IllegalArgumentException("Nome invalido");
+            throw new NomeInvalidoException();
         }
 
         List<Empresa> empresasDoDono = empresasPorDono.get(dono);
 
         if (indice < 0) {
-            throw new IndexOutOfBoundsException("Indice invalido");
+            throw new IndiceInvalidoException();
         }
 
         int contador = 0;
@@ -255,9 +258,24 @@ public class Sistema {
         }
 
         if (!encontrouNome) {
-            throw new IllegalArgumentException("Nao existe empresa com esse nome");
+            throw new EmpresaNaoExisteException();
         }
 
-        throw new IndexOutOfBoundsException("Indice maior que o esperado");
+        throw new IndiceMaiorException();
+    }
+    public int criarProduto(int empresa, String nome, float valor, String categoria){
+        Produto produto = new Produto(empresa, nome, valor, categoria);
+        produtos.put(produto.getId(), produto);
+        produtoID++;
+        return produto.getId();
+    }
+
+    public void editarProduto(int produto, String nome, float valor, String categoria){
+    }
+    public String getProduto(String nome, int empresa, String atributo){
+        return "";
+    }
+    public String listarProdutos(int empresa){
+        return "";
     }
 }
