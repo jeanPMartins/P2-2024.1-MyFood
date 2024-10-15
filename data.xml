@@ -6,7 +6,7 @@
    <object class="java.util.HashMap">
     <void method="put">
      <int>0</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto" id="Produto0">
       <void property="categoria">
        <string>alimento</string>
       </void>
@@ -20,7 +20,7 @@
     </void>
     <void method="put">
      <int>1</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto" id="Produto1">
       <void property="categoria">
        <string>alimento</string>
       </void>
@@ -37,7 +37,7 @@
     </void>
     <void method="put">
      <int>2</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto" id="Produto2">
       <void property="categoria">
        <string>bebida</string>
       </void>
@@ -54,7 +54,7 @@
     </void>
     <void method="put">
      <int>3</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto" id="Produto3">
       <void property="categoria">
        <string>alimento</string>
       </void>
@@ -105,6 +105,78 @@
       </void>
       <void property="tipoCozinha">
        <string>brasileira</string>
+      </void>
+     </object>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>pedidos</string>
+   <object class="java.util.HashMap">
+    <void method="put">
+     <int>0</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Pedido" id="Pedido0">
+      <void property="cliente">
+       <string>Carlos</string>
+      </void>
+      <void property="empresa">
+       <string>Sorveteria do Roberto</string>
+      </void>
+      <void property="estado">
+       <string>preparando</string>
+      </void>
+      <void property="produtos">
+       <void method="add">
+        <object idref="Produto0"/>
+       </void>
+       <void method="add">
+        <object idref="Produto1"/>
+       </void>
+       <void method="add">
+        <object idref="Produto2"/>
+       </void>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>1</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Pedido" id="Pedido1">
+      <void property="cliente">
+       <string>Carlos</string>
+      </void>
+      <void property="empresa">
+       <string>Pastelaria do Roberto</string>
+      </void>
+      <void property="estado">
+       <string>aberto</string>
+      </void>
+      <void property="numPedido">
+       <int>1</int>
+      </void>
+      <void property="produtos">
+       <void method="add">
+        <object idref="Produto3"/>
+       </void>
+       <void method="add">
+        <object idref="Produto3"/>
+       </void>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>2</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Pedido">
+      <void property="cliente">
+       <string>Carlos</string>
+      </void>
+      <void property="empresa">
+       <string>Sorveteria do Roberto</string>
+      </void>
+      <void property="estado">
+       <string>aberto</string>
+      </void>
+      <void property="numPedido">
+       <int>2</int>
       </void>
      </object>
     </void>

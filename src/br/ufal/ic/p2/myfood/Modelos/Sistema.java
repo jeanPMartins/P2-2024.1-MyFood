@@ -23,15 +23,15 @@ public class Sistema {
     private int usuarioID = 0;
     private int empresaID = 0;
     private int produtoID = 0;
+    private int pedidosID = 0;
     private Map<Integer, Usuario> usuarios = new HashMap<>();
     private Map<Integer, Empresa> empresas = new HashMap<>();
     private Map<Integer, Produto> produtos = new HashMap<>();
+    private Map<Integer, Pedido> pedidos = new HashMap<>();
 
     public Sistema() {
         carregarDados("data.xml");
     }
-
-    // Zera o sistema
     public void zerarSistema() {
         usuarios.clear();
         usuariosPorEmail.clear();
@@ -41,15 +41,14 @@ public class Sistema {
         empresasPorNome.clear();
         produtos.clear();
         produtoPorEmpresa.clear();
+        pedidos.clear();
     }
-
-    // Encerra o sistema
     public void encerrarSistema() {
         salvarDados("data.xml");
         System.out.println("Sistema Encerrado");
     }
 
-    // Salva os dados em um arquivo XML
+    //Persistencia de dados usando XML
     public void salvarDados(String caminhoArquivo) {
         try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(caminhoArquivo))) {
             // Cria um mapa para armazenar todos os dados do sistema
@@ -57,6 +56,7 @@ public class Sistema {
             dadosDoSistema.put("usuarios", usuarios);
             dadosDoSistema.put("empresas", empresas);
             dadosDoSistema.put("produtos", produtos);
+            dadosDoSistema.put("pedidos", pedidos);
 
             // Escreve o mapa no arquivo
             encoder.writeObject(dadosDoSistema);
@@ -64,8 +64,6 @@ public class Sistema {
             e.printStackTrace();
         }
     }
-
-    // Carrega os dados a partir de um arquivo XML
     public void carregarDados(String caminhoArquivo) {
         try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(caminhoArquivo))) {
             Object obj = decoder.readObject();
@@ -90,6 +88,12 @@ public class Sistema {
                     produtos.clear();
                     produtos.putAll(produtosCarregados);
                 }
+                // Carrega pedidos
+                if (dadosCarregados.containsKey("pedidos")) {
+                    Map<Integer, Pedido> pedidosCarregados = (Map<Integer, Pedido>) dadosCarregados.get("pedidos");
+                    pedidos.clear();
+                    pedidos.putAll(pedidosCarregados);
+                }
 
                 // Atualiza os mapas adicionais
                 atualizarExtras();
@@ -98,8 +102,6 @@ public class Sistema {
             e.printStackTrace();
         }
     }
-
-    // Atualiza os mapas adicionais usados dentro das classes
     private void atualizarExtras() {
         // Limpa e atualiza usuariosPorEmail
         usuariosPorEmail.clear();
@@ -128,6 +130,7 @@ public class Sistema {
         }
     }
 
+    //US1
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
         //criaçao de clientes
         Cliente cliente = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco);
@@ -172,7 +175,7 @@ public class Sistema {
         }
         return null;
     }
-
+    //US2
     public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
         Usuario usuario = usuarios.get(dono);
         if (usuario == null) {
@@ -265,7 +268,7 @@ public class Sistema {
 
         throw new IndiceMaiorException();
     }
-
+    //US3
     public int criarProduto(int empresa, String nome, float valor, String categoria) throws NomeInvalidoException {
         validarProdutos(empresa, nome, valor, categoria);
         Produto produto = new Produto(produtoID, nome, valor, categoria, empresa);
@@ -367,5 +370,125 @@ public class Sistema {
         } else {
             return "{[]}";
         }
+    }
+    //US4
+    public int criarPedido(int cliente, int empresa) throws NaoPodePedirException, PedidoJaExisteException {
+        if (usuarios.get(cliente) instanceof Dono) {
+            throw new NaoPodePedirException();
+        }
+
+        for (Pedido pedido : pedidos.values()) {
+            if (pedido.getCliente().equals(usuarios.get(cliente).getNome()) &&
+                    pedido.getEmpresa().equals(empresas.get(empresa).getNome()) &&
+                    pedido.getEstado().equals("aberto")) {
+                throw new PedidoJaExisteException();
+            }
+        }
+
+        Pedido pedido = new Pedido(pedidosID, usuarios.get(cliente).getNome(), empresas.get(empresa).getNome(), "aberto", 0);
+        pedidos.put(pedidosID, pedido);
+        return pedidosID++;
+    }
+    public int getNumeroPedido(int cliente, int empresa, int indice) {
+        List<Pedido> pedidosDoClienteParaEmpresa = new ArrayList<>();
+
+        for (Map.Entry<Integer, Pedido> entry : pedidos.entrySet()) {
+            Pedido pedido = entry.getValue();
+            if (pedido.getCliente().equals(usuarios.get(cliente).getNome()) &&
+                    pedido.getEmpresa().equals(empresas.get(empresa).getNome())) {
+
+                pedidosDoClienteParaEmpresa.add(pedido);
+            }
+        }
+        // Retorna o número do pedido correspondente ao índice
+        return pedidosDoClienteParaEmpresa.get(indice).getNumPedido();
+    }
+    public void adicionarProduto(int numero, int produto) throws NaoExistePedidoAbertoException, ProdutoNaoPertenceException, PedidoJaFechouException {
+        if (!pedidos.containsKey(numero)) {
+            throw new NaoExistePedidoAbertoException();
+        }
+
+        Pedido pedido = pedidos.get(numero);
+
+        if (!pedido.getEstado().equals("aberto")) {
+            throw new PedidoJaFechouException("Nao e possivel adcionar produtos a um pedido fechado");
+        }
+
+        List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(empresasPorNome.get(pedido.getEmpresa()).getId());
+
+        if (!produtosDaEmpresa.contains(produtos.get(produto))) {
+            throw new ProdutoNaoPertenceException();
+        }
+
+        pedido.addProduto(produtos.get(produto));
+    }
+    public String getPedidos(int numero, String atributo) throws AtributoInvalidoException, NaoExistePedidoAbertoException, AtributoNaoExisteException {
+        if (!pedidos.containsKey(numero)) {
+            throw new NaoExistePedidoAbertoException();
+        }
+
+        Pedido pedido = pedidos.get(numero);
+
+        if (atributo == null || atributo.isEmpty()) {
+            throw new AtributoInvalidoException();
+        }
+
+        switch (atributo) {
+            case "cliente":
+                return pedido.getCliente();
+            case "empresa":
+                return pedido.getEmpresa();
+            case "estado":
+                return pedido.getEstado();
+            case "valor":
+                return String.format(Locale.US, "%.2f", pedido.getTotal());
+            case "produtos":
+                StringBuilder sb = new StringBuilder();
+                sb.append("{[");
+
+                List<Produto> produtosAdicionados = pedido.getProdutos();
+                for (Produto produto : produtosAdicionados) {
+                    sb.append(produto.getNome()).append(", ");
+                }
+                if (produtosAdicionados.size() > 0) {
+                    sb.setLength(sb.length() - 2);
+                }
+                sb.append("]}");
+                return sb.toString();
+            default:
+                throw new AtributoNaoExisteException();
+        }
+    }
+    public void fecharPedido(int numero){
+        if(!pedidos.containsKey(numero)){
+            throw new PedidoNaoEncontradoException();
+        }
+        pedidos.get(numero).setEstado("preparando");
+    }
+    public void removerProduto(int numero, String nomeProduto) throws ProdutoNaoEncontradoException, ProdutoInvalidoException, PedidoJaFechouException {
+        if (nomeProduto == null || nomeProduto.isEmpty()) {
+            throw new ProdutoInvalidoException();
+        }
+
+        Pedido pedido = pedidos.get(numero);
+
+        if (pedido == null) {
+            throw new NaoExistePedidoAbertoException();
+        }
+        if (pedido.getEstado().equals("preparando")) {
+            throw new PedidoJaFechouException("Nao e possivel remover produtos de um pedido fechado");
+        }
+        Produto produtoARemover = null;
+        for (Produto produto : pedido.getProdutos()) {
+            if (produto.getNome().equals(nomeProduto)) {
+                produtoARemover = produto;
+                break;
+            }
+        }
+        if (produtoARemover == null) {
+            throw new ProdutoNaoEncontradoException();
+        }
+
+        pedido.removeProduto(produtoARemover);
     }
 }
