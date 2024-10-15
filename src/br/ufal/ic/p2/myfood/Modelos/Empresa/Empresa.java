@@ -83,7 +83,7 @@ public class Empresa {
         if (endereco == null || endereco.isEmpty()) {
             throw new EnderecoInvalidoException();
         }
-        if (dono < 1 || dono > 100) {
+        if (dono < 0 || dono > 100) {
             throw new EnderecoInvalidoException();
         }
         Empresa teste = null;

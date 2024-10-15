@@ -12,12 +12,10 @@ import java.beans.XMLEncoder;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
+import static br.ufal.ic.p2.myfood.Modelos.Produto.produtoPorEmpresa;
 import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 
 public class Sistema {
@@ -42,6 +40,7 @@ public class Sistema {
         empresasPorEndereco.clear();
         empresasPorNome.clear();
         produtos.clear();
+        produtoPorEmpresa.clear();
     }
 
     // Encerra o sistema
@@ -57,6 +56,7 @@ public class Sistema {
             Map<String, Object> dadosDoSistema = new HashMap<>();
             dadosDoSistema.put("usuarios", usuarios);
             dadosDoSistema.put("empresas", empresas);
+            dadosDoSistema.put("produtos", produtos);
 
             // Escreve o mapa no arquivo
             encoder.writeObject(dadosDoSistema);
@@ -78,12 +78,17 @@ public class Sistema {
                     usuarios.clear();
                     usuarios.putAll(usuariosCarregados);
                 }
-
                 // Carrega empresas
                 if (dadosCarregados.containsKey("empresas")) {
                     Map<Integer, Empresa> empresasCarregadas = (Map<Integer, Empresa>) dadosCarregados.get("empresas");
                     empresas.clear();
                     empresas.putAll(empresasCarregadas);
+                }
+                // Carrega produtos
+                if (dadosCarregados.containsKey("produtos")) {
+                    Map<Integer, Produto> produtosCarregados = (Map<Integer, Produto>) dadosCarregados.get("produtos");
+                    produtos.clear();
+                    produtos.putAll(produtosCarregados);
                 }
 
                 // Atualiza os mapas adicionais
@@ -116,23 +121,25 @@ public class Sistema {
         for (Empresa empresa : empresas.values()) {
             empresasPorDono.computeIfAbsent(empresa.getDono(), k -> new ArrayList<>()).add(empresa);
         }
+        // Limpa e atualiza empresasPorDono
+        produtoPorEmpresa.clear();
+        for (Produto produto : produtos.values()) {
+            produtoPorEmpresa.computeIfAbsent(produto.getEmpresa(), k -> new ArrayList<>()).add(produto);
+        }
     }
 
-    // Cria cliente
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
+        //criaçao de clientes
         Cliente cliente = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco);
         usuarios.put(cliente.getId(), cliente);
         usuarioID++;
     }
-
-    // Cria dono
     public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
+        //criaçao de donos
         Dono dono = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco, cpf);
         usuarios.put(dono.getId(), dono);
         usuarioID++;
     }
-
-    // Login de usuário
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
         Usuario usuario = usuariosPorEmail.get(email);
         if (usuario == null) {
@@ -143,8 +150,6 @@ public class Sistema {
             throw new LoginInvalidoException();
         }
     }
-
-    // Obtém atributo de um usuário
     public String getAtributoUsuario(int id, String atributo) throws UsuarioNaoCadastradoException {
         if (!usuarios.containsKey(id)) {
             throw new UsuarioNaoCadastradoException();
@@ -181,7 +186,6 @@ public class Sistema {
         empresas.put(restaurante.getId(), restaurante);
         return empresaID++;
     }
-
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
         if (usuarios.get(id) instanceof Dono) {
             if(empresasPorDono.get(id) != null){
@@ -203,7 +207,6 @@ public class Sistema {
             throw new UsuarioNaoPodeCriarException();
         }
     }
-
     public String getAtributoEmpresa(int id, String atributo) throws EmpresaNaoCadastradaException, AtributoInvalidoException {
         if (!empresas.containsKey(id)) {
             throw new EmpresaNaoCadastradaException();
@@ -232,7 +235,6 @@ public class Sistema {
                 throw new AtributoInvalidoException();
         }
     }
-
     public int getIdEmpresa(int dono, String nome, int indice) throws NomeInvalidoException, EmpresaNaoExisteException  {
         if (nome == null || nome.isEmpty()) {
             throw new NomeInvalidoException();
@@ -263,19 +265,107 @@ public class Sistema {
 
         throw new IndiceMaiorException();
     }
-    public int criarProduto(int empresa, String nome, float valor, String categoria){
-        Produto produto = new Produto(empresa, nome, valor, categoria);
+
+    public int criarProduto(int empresa, String nome, float valor, String categoria) throws NomeInvalidoException {
+        validarProdutos(empresa, nome, valor, categoria);
+        Produto produto = new Produto(produtoID, nome, valor, categoria, empresa);
+        if (!produtoPorEmpresa.containsKey(empresa)) {
+            produtoPorEmpresa.put(empresa, new ArrayList<>());
+        }
+        produtoPorEmpresa.get(empresa).add(produto);
         produtos.put(produto.getId(), produto);
         produtoID++;
         return produto.getId();
     }
+    public void validarProdutos(int empresa, String nome, float valor, String categoria) throws NomeInvalidoException {
+        if (nome == null || nome.isEmpty()) {
+            throw new NomeInvalidoException();
+        }
+        if (valor < 0) {
+            throw new ValorInvalidoException();
+        }
+        if (categoria == null || categoria.isEmpty()) {
+            throw new CategoriaInvalidaException();
+        }
+        if (produtoPorEmpresa.containsKey(empresa)) {
+            for (Produto p : produtoPorEmpresa.get(empresa)) {
+                if (p.getNome().equals(nome)) {
+                    throw new ProdutoJaExiste();
+                }
+            }
+        }
+    }
+    public void editarProduto(int produto, String nome, float valor, String categoria) throws NomeInvalidoException, ValorInvalidoException, CategoriaInvalidaException, ProdutoNaoEncontradoException {
+        if (!produtos.containsKey(produto)) {
+            throw new ProdutoNaoCadastrado();
+        }
+        if (nome == null || nome.isEmpty()) {
+            throw new NomeInvalidoException();
+        }
+        if (valor < 0) {
+            throw new ValorInvalidoException();
+        }
+        if (categoria == null || categoria.isEmpty()) {
+            throw new CategoriaInvalidaException();
+        }
+        Produto p = produtos.get(produto);
+        p.setNome(nome);
+        p.setValor(valor);
+        p.setCategoria(categoria);
+    }
+    public String getProduto(String nome, int empresa, String atributo) throws AtributoInvalidoException {
+        if (!produtoPorEmpresa.containsKey(empresa)) {
+            throw new ProdutoNaoEncontradoException();
+        }
 
-    public void editarProduto(int produto, String nome, float valor, String categoria){
+        List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(empresa);
+        Produto produtoEncontrado = null;
+        for (Produto p : produtosDaEmpresa) {
+            if (p.getNome().equals(nome)) {
+                produtoEncontrado = p;
+                break;
+            }
+        }
+
+        if (produtoEncontrado == null) {
+            throw new ProdutoNaoEncontradoException();
+        }
+
+        if (atributo == null || atributo.isEmpty()) {
+            throw new AtributoInvalidoException();
+        }
+
+        switch (atributo) {
+            case "nome":
+                return produtoEncontrado.getNome();
+            case "categoria":
+                return produtoEncontrado.getCategoria();
+            case "valor":
+                return String.format(Locale.US, "%.2f", produtoEncontrado.getValor());
+            case "empresa":
+                return empresas.get(produtoEncontrado.getEmpresa()).getNome();
+            default:
+                throw new AtributoNaoExisteException();
+        }
     }
-    public String getProduto(String nome, int empresa, String atributo){
-        return "";
-    }
-    public String listarProdutos(int empresa){
-        return "";
+    public String listarProdutos(int empresa) {
+        if (!empresas.containsKey(empresa)) {
+            throw new EmpresaNaoEncontradaException();
+        }
+
+        List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(empresa);
+
+        if (produtosDaEmpresa != null && !produtosDaEmpresa.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{[");
+            for (Produto produto : produtosDaEmpresa) {
+                sb.append(produto.getNome()).append(", ");
+            }
+            sb.setLength(sb.length() - 2);
+            sb.append("]}");
+            return sb.toString();
+        } else {
+            return "{[]}";
+        }
     }
 }

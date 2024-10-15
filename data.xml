@@ -2,19 +2,89 @@
 <java version="22.0.2" class="java.beans.XMLDecoder">
  <object class="java.util.HashMap">
   <void method="put">
+   <string>produtos</string>
+   <object class="java.util.HashMap">
+    <void method="put">
+     <int>0</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+      <void property="categoria">
+       <string>alimento</string>
+      </void>
+      <void property="nome">
+       <string>Sorvete morango</string>
+      </void>
+      <void property="valor">
+       <float>1.4</float>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>1</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+      <void property="categoria">
+       <string>alimento</string>
+      </void>
+      <void property="id">
+       <int>1</int>
+      </void>
+      <void property="nome">
+       <string>Sorvete chocolate</string>
+      </void>
+      <void property="valor">
+       <float>1.4</float>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>2</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+      <void property="categoria">
+       <string>bebida</string>
+      </void>
+      <void property="id">
+       <int>2</int>
+      </void>
+      <void property="nome">
+       <string>Refrigerante</string>
+      </void>
+      <void property="valor">
+       <float>3.4</float>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>3</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Produto">
+      <void property="categoria">
+       <string>alimento</string>
+      </void>
+      <void property="empresa">
+       <int>1</int>
+      </void>
+      <void property="id">
+       <int>3</int>
+      </void>
+      <void property="nome">
+       <string>Pastel de queijo</string>
+      </void>
+      <void property="valor">
+       <float>5.0</float>
+      </void>
+     </object>
+    </void>
+   </object>
+  </void>
+  <void method="put">
    <string>empresas</string>
    <object class="java.util.HashMap">
     <void method="put">
      <int>0</int>
      <object class="br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante">
-      <void property="dono">
-       <int>1</int>
-      </void>
       <void property="endereco">
        <string>Rua Segura N 987</string>
       </void>
       <void property="nome">
-       <string>Pastelaria do Carlos</string>
+       <string>Sorveteria do Roberto</string>
       </void>
       <void property="tipoCozinha">
        <string>brasileira</string>
@@ -24,57 +94,14 @@
     <void method="put">
      <int>1</int>
      <object class="br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante">
-      <void property="dono">
-       <int>1</int>
-      </void>
-      <void property="endereco">
-       <string>Rua Legal N 654</string>
-      </void>
-      <void property="id">
-       <int>1</int>
-      </void>
-      <void property="nome">
-       <string>Sushi do Carlos</string>
-      </void>
-      <void property="tipoCozinha">
-       <string>japonesa</string>
-      </void>
-     </object>
-    </void>
-    <void method="put">
-     <int>2</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante">
-      <void property="dono">
-       <int>1</int>
-      </void>
-      <void property="endereco">
-       <string>Rua Divertida N 1973</string>
-      </void>
-      <void property="id">
-       <int>2</int>
-      </void>
-      <void property="nome">
-       <string>Pastelaria do Carlos</string>
-      </void>
-      <void property="tipoCozinha">
-       <string>brasileira</string>
-      </void>
-     </object>
-    </void>
-    <void method="put">
-     <int>3</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante">
-      <void property="dono">
-       <int>2</int>
-      </void>
       <void property="endereco">
        <string>Rua Segura N 987</string>
       </void>
       <void property="id">
-       <int>3</int>
+       <int>1</int>
       </void>
       <void property="nome">
-       <string>Sorveteria do Roberto</string>
+       <string>Pastelaria do Roberto</string>
       </void>
       <void property="tipoCozinha">
        <string>brasileira</string>
@@ -88,46 +115,6 @@
    <object class="java.util.HashMap">
     <void method="put">
      <int>0</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente">
-      <void property="email">
-       <string>lucas@ufal.com.br</string>
-      </void>
-      <void property="endereco">
-       <string>Rua Exemplo N 321</string>
-      </void>
-      <void property="nome">
-       <string>Lucas</string>
-      </void>
-      <void property="senha">
-       <string>123senha</string>
-      </void>
-     </object>
-    </void>
-    <void method="put">
-     <int>1</int>
-     <object class="br.ufal.ic.p2.myfood.Modelos.Usuario.Dono">
-      <void property="cpf">
-       <string>544.732.410-68</string>
-      </void>
-      <void property="email">
-       <string>carlos@ufal.com.br</string>
-      </void>
-      <void property="endereco">
-       <string>Rua Exemplo N 321</string>
-      </void>
-      <void property="id">
-       <int>1</int>
-      </void>
-      <void property="nome">
-       <string>CarlosDono</string>
-      </void>
-      <void property="senha">
-       <string>123senha</string>
-      </void>
-     </object>
-    </void>
-    <void method="put">
-     <int>2</int>
      <object class="br.ufal.ic.p2.myfood.Modelos.Usuario.Dono">
       <void property="cpf">
        <string>544.732.410-68</string>
@@ -138,11 +125,28 @@
       <void property="endereco">
        <string>Rua Exemplo N 321</string>
       </void>
-      <void property="id">
-       <int>2</int>
-      </void>
       <void property="nome">
        <string>RobertoDono</string>
+      </void>
+      <void property="senha">
+       <string>123senha</string>
+      </void>
+     </object>
+    </void>
+    <void method="put">
+     <int>1</int>
+     <object class="br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente">
+      <void property="email">
+       <string>carlos@ufal.com.br</string>
+      </void>
+      <void property="endereco">
+       <string>Rua Exemplo N 123</string>
+      </void>
+      <void property="id">
+       <int>1</int>
+      </void>
+      <void property="nome">
+       <string>Carlos</string>
       </void>
       <void property="senha">
        <string>123senha</string>
