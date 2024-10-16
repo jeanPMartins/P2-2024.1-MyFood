@@ -13,6 +13,8 @@ import java.beans.XMLEncoder;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.DateTimeException;
+import java.time.LocalTime;
 import java.util.*;
 
 import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
@@ -177,7 +179,7 @@ public class Sistema {
         return null;
     }
     //Empresas = US2 + US5 + US6
-    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
         Usuario usuario = usuarios.get(dono);
         if (usuario == null) {
             return 0;
@@ -190,7 +192,7 @@ public class Sistema {
         empresas.put(restaurante.getId(), restaurante);
         return empresaID++;
     }
-    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
         Usuario usuario = usuarios.get(dono);
         if (usuario == null) {
             return 0;
@@ -201,16 +203,21 @@ public class Sistema {
         if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
             throw new FormatoDataHoraInvalidoException();
         }
-//        if (!validarHorario(abre) || !validarHorario(fecha)) {
-//            throw new HorarioInvalidoException();
-//        }
 
         Mercado mercado = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre, fecha, tipoMercado);
         empresas.put(mercado.getId(), mercado);
         return empresaID++;
     }
+    public void alterarFuncionamento(int mercado, String abre, String fecha){
+        if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
+            throw new FormatoDataHoraInvalidoException();
+        }
+        Mercado merc = (Mercado) empresas.get(mercado);
+        merc.setAbre(abre);
+        merc.setFecha(fecha);
+    }
     private boolean validarFormatoHora(String hora) {
-        String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+        String regex = "\\d{2}:\\d{2}";
         return hora != null && hora.matches(regex);
     }
 
@@ -251,9 +258,7 @@ public class Sistema {
             case "endereco":
                 return empresa.getEndereco();
             case "tipoCozinha":
-                if (empresa instanceof Restaurante) {
-                    return ((Restaurante) empresa).getTipoCozinha();
-                }
+                return ((Restaurante) empresa).getTipoCozinha();
             case "dono":
                 Usuario dono = usuarios.get(empresa.getDono());
                 if (dono != null) {

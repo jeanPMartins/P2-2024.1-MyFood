@@ -2,6 +2,8 @@ package br.ufal.ic.p2.myfood.Modelos.Empresa;
 
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 
+import java.time.DateTimeException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +67,7 @@ public class Empresa {
         this.endereco = endereco;
     }
 
-    public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+    public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
         Restaurante restaurante = new Restaurante(tipoEmpresa, dono, id, nome, endereco, tipoCozinha);
         if (!empresasPorDono.containsKey(dono)) {
@@ -76,7 +78,7 @@ public class Empresa {
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
     }
-    public static Mercado criarEmpresa(String tipoEmpresa,int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+    public static Mercado criarEmpresa(String tipoEmpresa,int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
         Mercado mercado = new Mercado(tipoEmpresa, dono, id, nome, endereco, abre, fecha, tipoMercado);
         if (!empresasPorDono.containsKey(dono)) {
@@ -85,12 +87,21 @@ public class Empresa {
         if (tipoMercado == null || tipoMercado.isEmpty()) {
             throw new NomeInvalidoException();
         }
+        if (abre == null || abre.isEmpty()) {
+            throw new HorarioInvalidoException();
+        }
+        if (fecha == null || fecha.isEmpty()) {
+            throw new HorarioInvalidoException();
+        }
+        if (validarHorario(fecha)) {
+            throw new HorarioInvalidoException();
+        }
         empresasPorDono.get(dono).add(mercado);
         empresasPorNome.put(nome, mercado);
         empresasPorEndereco.put(endereco, mercado);
         return mercado;
     }
-    public static void validarEmpresa(String tipoEmpresa, int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+    public static void validarEmpresa(String tipoEmpresa, int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         if (tipoEmpresa == null || tipoEmpresa.isEmpty()){
             throw new TipoEmpresaInvalidoException();
         }
@@ -98,10 +109,10 @@ public class Empresa {
             throw new NomeInvalidoException();
         }
         if (endereco == null || endereco.isEmpty()) {
-            throw new EnderecoInvalidoException();
+            throw new EnderecoInvalidoEmpresaException();
         }
         if (dono < 0 || dono > 100) {
-            throw new EnderecoInvalidoException();
+            throw new EnderecoInvalidoEmpresaException();
         }
         Empresa teste = null;
         for (Empresa e : empresasPorNome.values()) {
@@ -119,5 +130,12 @@ public class Empresa {
                 }
             }
         }
+    }
+    public static boolean validarHorario(String hora){
+        String[] parts = hora.split(":");
+        if(parts.length != 2) return true;
+        int horas = Integer.parseInt(parts[0]);
+        int mins = Integer.parseInt(parts[1]);
+        return (horas < 6 || horas > 23) || (mins < 0 || mins > 59);
     }
 }

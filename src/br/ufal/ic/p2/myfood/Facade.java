@@ -29,7 +29,7 @@ public class Facade {
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
         return sistema.login(email, senha);
     }
-    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, UsuarioNaoPodeCriarException {
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
         return sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, tipoCozinha);
     }
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
@@ -71,7 +71,10 @@ public class Facade {
     public void removerProduto(int numero, String produto){
         sistema.removerProduto(numero, produto);
     }
-    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
         return sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, abre, fecha, tipoMercado);
+    }
+    public void alterarFuncionamento(int mercado, String abre, String fecha){
+        sistema.alterarFuncionamento(mercado, abre, fecha);
     }
 }
