@@ -66,8 +66,8 @@ public class Empresa {
     }
 
     public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
-        validarEmpresa(dono, nome, endereco);
-        Restaurante restaurante = new Restaurante(dono, id, nome, endereco, tipoCozinha);
+        validarEmpresa(tipoEmpresa, dono, nome, endereco);
+        Restaurante restaurante = new Restaurante(tipoEmpresa, dono, id, nome, endereco, tipoCozinha);
         if (!empresasPorDono.containsKey(dono)) {
             empresasPorDono.put(dono, new ArrayList<>());
         }
@@ -76,7 +76,24 @@ public class Empresa {
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
     }
-    public static void validarEmpresa(int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+    public static Mercado criarEmpresa(String tipoEmpresa,int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+        validarEmpresa(tipoEmpresa, dono, nome, endereco);
+        Mercado mercado = new Mercado(tipoEmpresa, dono, id, nome, endereco, abre, fecha, tipoMercado);
+        if (!empresasPorDono.containsKey(dono)) {
+            empresasPorDono.put(dono, new ArrayList<>());
+        }
+        if (tipoMercado == null || tipoMercado.isEmpty()) {
+            throw new NomeInvalidoException();
+        }
+        empresasPorDono.get(dono).add(mercado);
+        empresasPorNome.put(nome, mercado);
+        empresasPorEndereco.put(endereco, mercado);
+        return mercado;
+    }
+    public static void validarEmpresa(String tipoEmpresa, int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException {
+        if (tipoEmpresa == null || tipoEmpresa.isEmpty()){
+            throw new TipoEmpresaInvalidoException();
+        }
         if (nome == null || nome.isEmpty()) {
             throw new NomeInvalidoException();
         }

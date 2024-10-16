@@ -1,6 +1,7 @@
 package br.ufal.ic.p2.myfood.Modelos;
 
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa;
+import br.ufal.ic.p2.myfood.Modelos.Empresa.Mercado;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente;
@@ -130,7 +131,7 @@ public class Sistema {
         }
     }
 
-    //US1
+    //Usuarios = US1 + US7
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
         //criaçao de clientes
         Cliente cliente = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco);
@@ -175,7 +176,7 @@ public class Sistema {
         }
         return null;
     }
-    //US2
+    //Empresas = US2 + US5 + US6
     public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
         Usuario usuario = usuarios.get(dono);
         if (usuario == null) {
@@ -189,6 +190,30 @@ public class Sistema {
         empresas.put(restaurante.getId(), restaurante);
         return empresaID++;
     }
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+        Usuario usuario = usuarios.get(dono);
+        if (usuario == null) {
+            return 0;
+        }
+        if (!(usuario instanceof Dono)) {
+            throw new UsuarioNaoPodeCriarException();
+        }
+        if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
+            throw new FormatoDataHoraInvalidoException();
+        }
+//        if (!validarHorario(abre) || !validarHorario(fecha)) {
+//            throw new HorarioInvalidoException();
+//        }
+
+        Mercado mercado = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre, fecha, tipoMercado);
+        empresas.put(mercado.getId(), mercado);
+        return empresaID++;
+    }
+    private boolean validarFormatoHora(String hora) {
+        String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+        return hora != null && hora.matches(regex);
+    }
+
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
         if (usuarios.get(id) instanceof Dono) {
             if(empresasPorDono.get(id) != null){
@@ -234,6 +259,12 @@ public class Sistema {
                 if (dono != null) {
                     return dono.getNome();
                 }
+            case "abre":
+                return ((Mercado)empresa).getAbre();
+            case "fecha":
+                return ((Mercado)empresa).getFecha();
+            case "tipoMercado":
+                return ((Mercado)empresa).getTipoMercado();
             default:
                 throw new AtributoInvalidoException();
         }
@@ -268,7 +299,7 @@ public class Sistema {
 
         throw new IndiceMaiorException();
     }
-    //US3
+    //Produtos = US3
     public int criarProduto(int empresa, String nome, float valor, String categoria) throws NomeInvalidoException {
         validarProdutos(empresa, nome, valor, categoria);
         Produto produto = new Produto(produtoID, nome, valor, categoria, empresa);
@@ -371,7 +402,7 @@ public class Sistema {
             return "{[]}";
         }
     }
-    //US4
+    //Pedidos = US4
     public int criarPedido(int cliente, int empresa) throws NaoPodePedirException, PedidoJaExisteException {
         if (usuarios.get(cliente) instanceof Dono) {
             throw new NaoPodePedirException();

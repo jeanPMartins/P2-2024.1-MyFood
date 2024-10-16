@@ -71,27 +71,7 @@ public class Facade {
     public void removerProduto(int numero, String produto){
         sistema.removerProduto(numero, produto);
     }
-//# criarPedido(int: cliente, int: empresa)
-//# descrição: Cria um novo pedido de um cliente para uma empresa.
-//# retorno:  Retorna o número do pedido
-//#
-//# getNumeroPedido(int: cliente, int: empresa, int indice)
-//# descrição: Retorna o pedido de um cliente na empresa, ordenado de forma ao mais antigo vir primeiro no indice
-//# retorno:  Retorna o número do pedido.
-//#
-//# adicionarProduto(int: numero, int produto)
-//# descrição: Adciona um produto da empresa ao pedido
-//# retorno:  Sem retorno
-//#
-//# getPedidos(int  numero, String atributo)
-//# descrição:  obtém os dados de um pedido pelo id
-//# retorno:  retorna uma string com o valor do atributo.
-//#
-//# fecharPedido(int numero)
-//# descrição:  muda o estado do pedido para preparando.
-//# retorno:  Sem retorno
-//#
-//# removerProduto(int  pedido, String produto)
-//# descrição:  Remove um produto adicionado com esse nome, mantém outros caso com o mesmo nome.
-//# retorno: Sem retorno
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException {
+        return sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, abre, fecha, tipoMercado);
+    }
 }
