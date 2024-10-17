@@ -3,6 +3,8 @@ package br.ufal.ic.p2.myfood;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 import br.ufal.ic.p2.myfood.Modelos.Sistema;
 
+import java.util.List;
+
 public class Facade {
 
     Sistema sistema = new Sistema();
@@ -25,6 +27,19 @@ public class Facade {
     //Dono
     public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
         sistema.criarUsuario(nome, email, senha, endereco, cpf);
+    }
+    //Entregador
+    public void criarUsuario(String nome, String email, String senha, String endereco, String veiculo, String placa) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
+        sistema.criarUsuario(nome, email, senha, endereco, veiculo, placa);
+    }
+    public void cadastrarEntregador(int empresa, int entregador){
+        sistema.cadastrarEntregador(empresa, entregador);
+    }
+    public String getEntregadores(int empresaId) throws EmpresaNaoEncontradaException {
+        return sistema.getEntregadores(empresaId);
+    }
+    public String getEmpresas(int entregadorId){
+        return sistema.getEmpresas(entregadorId);
     }
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
         return sistema.login(email, senha);

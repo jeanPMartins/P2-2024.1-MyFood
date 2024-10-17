@@ -7,6 +7,7 @@ import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Dono;
+import br.ufal.ic.p2.myfood.Modelos.Usuario.Entregador;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario;
 
 import java.beans.XMLDecoder;
@@ -18,6 +19,7 @@ import java.util.*;
 
 import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
 import static br.ufal.ic.p2.myfood.Modelos.Produto.produtoPorEmpresa;
+import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.empresasPorEntregador;
 import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 
 public class Sistema {
@@ -40,10 +42,11 @@ public class Sistema {
         empresas.clear();
         empresasPorDono.clear();
         empresasPorEndereco.clear();
-//        empresasPorNome.clear();
         produtos.clear();
         produtoPorEmpresa.clear();
         pedidos.clear();
+        entregadoresPorEmpresa.clear();
+        empresasPorEntregador.clear();
     }
     public void encerrarSistema() {
         salvarDados("data.xml");
@@ -111,12 +114,9 @@ public class Sistema {
             usuariosPorEmail.put(usuario.getEmail(), usuario);
         }
 
-        // Limpa e atualiza empresasPorNome e empresasPorEndereco
-//        empresasPorNome.clear();
+        // Limpa e atualiza empresasPorEndereco
         empresasPorEndereco.clear();
-
         for (Empresa empresa : empresas.values()) {
-//            empresasPorNome.put(empresa.getNome(), empresa);
             empresasPorEndereco.put(empresa.getEndereco(), empresa);
         }
 
@@ -125,7 +125,8 @@ public class Sistema {
         for (Empresa empresa : empresas.values()) {
             empresasPorDono.computeIfAbsent(empresa.getDono(), k -> new ArrayList<>()).add(empresa);
         }
-        // Limpa e atualiza empresasPorDono
+
+        // Limpa e atualiza produtoPorEmpresa
         produtoPorEmpresa.clear();
         for (Produto produto : produtos.values()) {
             produtoPorEmpresa.computeIfAbsent(produto.getEmpresa(), k -> new ArrayList<>()).add(produto);
@@ -143,6 +144,11 @@ public class Sistema {
         //criaçao de donos
         Dono dono = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco, cpf);
         usuarios.put(dono.getId(), dono);
+        usuarioID++;
+    }
+    public void criarUsuario(String nome, String email, String senha, String endereco, String veiculo, String placa) throws EmailJaExisteException, NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
+        Entregador entregador = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco, veiculo, placa);
+        usuarios.put(entregador.getId(), entregador);
         usuarioID++;
     }
     public int login(String email, String senha) throws UsuarioNaoCadastradoException, LoginInvalidoException {
@@ -170,12 +176,96 @@ public class Sistema {
                 case "endereco":
                     return usuario.getEndereco();
                 case "cpf":
-                    if (usuario instanceof Dono) {
-                        return ((Dono) usuario).getCpf();
-                    }
+                    return ((Dono) usuario).getCpf();
+                case "veiculo":
+                    return ((Entregador) usuario).getVeiculo();
+                case "placa":
+                    return ((Entregador) usuario).getPlaca();
             }
         }
         return null;
+    }
+    public void cadastrarEntregador(int empresa, int entregador) throws EntregadorJaCadastradoException, EmpresaNaoEncontradaException, NaoEntregadorException {
+        Empresa emp = empresas.get(empresa);
+        if (emp == null) {
+            throw new EmpresaNaoEncontradaException();
+        }
+
+        Usuario usuario = usuarios.get(entregador);
+        if (usuario == null || !(usuario instanceof Entregador)) {
+            throw new NaoEntregadorException();
+        }
+
+        List<Integer> entregadoresDaEmpresa = entregadoresPorEmpresa.get(empresa);
+        if (entregadoresDaEmpresa == null) {
+            entregadoresDaEmpresa = new ArrayList<>();
+            entregadoresPorEmpresa.put(empresa, entregadoresDaEmpresa);
+        }
+
+        if (entregadoresDaEmpresa.contains(entregador)) {
+            throw new EntregadorJaCadastradoException();
+        }
+
+        entregadoresDaEmpresa.add(entregador);
+
+        List<Integer> empresasDoEntregador = empresasPorEntregador.get(entregador);
+        if (empresasDoEntregador == null) {
+            empresasDoEntregador = new ArrayList<>();
+            empresasPorEntregador.put(entregador, empresasDoEntregador);
+        }
+
+        empresasDoEntregador.add(empresa);
+    }
+    public String getEntregadores(int empresa) throws EmpresaNaoEncontradaException {
+        List<Integer> entregadoresDaEmpresa = entregadoresPorEmpresa.get(empresa);
+
+        if (entregadoresDaEmpresa == null || entregadoresDaEmpresa.isEmpty()) {
+            return "{[]}";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{["); // Começa com {[
+
+        for (int i = 0; i < entregadoresDaEmpresa.size(); i++) {
+            Usuario entregador = usuarios.get(entregadoresDaEmpresa.get(i)); // Supondo que os emails estão no mapa `usuarios`
+            sb.append(entregador.getEmail());
+
+            if (i < entregadoresDaEmpresa.size() - 1) {
+                sb.append(", "); // Adiciona a vírgula entre os emails
+            }
+        }
+
+        sb.append("]}"); // Fecha com ]}
+
+        return sb.toString();
+    }
+    public String getEmpresas(int entregadorId) throws NaoEntregadorException {
+        Usuario usuario = usuarios.get(entregadorId);
+        if (usuario == null || !(usuario instanceof Entregador)) {
+            throw new NaoEntregadorException();
+        }
+
+        List<Integer> empresasDoEntregador = empresasPorEntregador.get(entregadorId);
+        if (empresasDoEntregador == null || empresasDoEntregador.isEmpty()) {
+            return "{[]}";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{[");
+        for (int i = 0; i < empresasDoEntregador.size(); i++) {
+            Empresa empresa = empresas.get(empresasDoEntregador.get(i));
+            sb.append("[");
+            sb.append(empresa.getNome()).append(", ").append(empresa.getEndereco());
+            sb.append("]");
+
+            if (i < empresasDoEntregador.size() - 1) {
+                sb.append(", ");
+            }
+        }
+
+        sb.append("]}");
+
+        return sb.toString();
     }
     //Empresas = US2 + US5 + US6
     public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, String tipoCozinha) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
@@ -211,7 +301,7 @@ public class Sistema {
         if (!(usuario instanceof Dono)) {
             throw new UsuarioNaoPodeCriarException();
         }
-        Farmacia farmacia = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre24h, numFuncionario);
+        Farmacia farmacia = Empresa.criarEmpresa(tipoEmpresa, dono, empresaID, nome, endereco, abre24h, numFuncionario);
         empresas.put(farmacia.getId(), farmacia);
         return empresaID++;
     }
@@ -296,6 +386,8 @@ public class Sistema {
             case "aberto24Horas":
                 if (((Farmacia)empresa).isAbre24h()) return "true";
                 else return "false";
+            case "numeroFuncionarios":
+                return String.valueOf(((Farmacia)empresa).getNumFuncionario());
             default:
                 throw new AtributoInvalidoException();
         }
@@ -495,7 +587,6 @@ public class Sistema {
 
         pedido.addProduto(produtos.get(produto));
     }
-
     public String getPedidos(int numero, String atributo) throws AtributoInvalidoException, NaoExistePedidoAbertoException, AtributoNaoExisteException {
         if (!pedidos.containsKey(numero)) {
             throw new NaoExistePedidoAbertoException();

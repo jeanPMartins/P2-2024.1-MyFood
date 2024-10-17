@@ -1,6 +1,7 @@
 package br.ufal.ic.p2.myfood.Modelos.Empresa;
 
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
+import br.ufal.ic.p2.myfood.Modelos.Usuario.Entregador;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class Empresa {
 
     public static Map<String, Empresa> empresasPorEndereco = new HashMap<>();
     public static Map<Integer, List<Empresa>> empresasPorDono = new HashMap<>();
+    public static Map<Integer, List<Integer>> entregadoresPorEmpresa = new HashMap<>();
 
     // Construtor padrão necessário para XMLDecoder
     public Empresa() {}
@@ -27,43 +29,33 @@ public class Empresa {
         this.nome = nome;
         this.endereco = endereco;
     }
-
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public int getDono() {
         return dono;
     }
-
     public void setDono(int dono) {
         this.dono = dono;
     }
-
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
     public String getEndereco() {
         return endereco;
     }
-
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
-
     public String getTipoEmpresa() {
         return tipoEmpresa;
     }
-
     public void setTipoEmpresa(String tipoEmpresa) {
         this.tipoEmpresa = tipoEmpresa;
     }
@@ -78,7 +70,6 @@ public class Empresa {
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
     }
-
     public static Mercado criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         if (tipoMercado == null || tipoMercado.isEmpty()) {
             throw new TipoMercadoInvalidoException();
@@ -105,7 +96,6 @@ public class Empresa {
         empresasPorEndereco.put(endereco, mercado);
         return mercado;
     }
-
     public static Farmacia criarEmpresa(String tipoEmpresa, int dono, int id, String nome, String endereco, boolean abre24h, int numFuncionario) throws NomeJaExisteException, NomeInvalidoException, EnderecoInvalidoException, EnderecoInvalidoEmpresaException, EnderecoJaExisteException {
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
         Farmacia farmacia = new Farmacia(tipoEmpresa, dono, id, nome, endereco, abre24h, numFuncionario);
@@ -149,7 +139,13 @@ public class Empresa {
         if (dono < 0 || dono > 100) {
             throw new EnderecoInvalidoEmpresaException();
         }
-
+        for (List<Empresa> empresas : empresasPorDono.values()) {
+            for (Empresa empresa : empresas) {
+                if (empresa.getNome().equals(nome) && empresa.getDono() != dono) {
+                    throw new NomeJaExisteException();
+                }
+            }
+        }
         List<Empresa> empresasDoDono = empresasPorDono.get(dono);
         if (empresasDoDono != null) {
             for (Empresa empresa : empresasDoDono) {
@@ -159,12 +155,5 @@ public class Empresa {
             }
         }
 
-        for (List<Empresa> empresas : empresasPorDono.values()) {
-            for (Empresa empresa : empresas) {
-                if (empresa.getNome().equals(nome) && empresa.getDono() != dono) {
-                    throw new NomeJaExisteException();
-                }
-            }
-        }
     }
 }
