@@ -7,7 +7,7 @@ public class Farmacia extends Empresa{
     // Construtor padrão necessário para XMLDecoder
     public Farmacia() {}
     public Farmacia(String tipoEmpresa, int dono, int id, String nome, String endereco, boolean abre24h, int numFuncionario) {
-        super(tipoEmpresa, dono, id, nome, endereco);
+        super(tipoEmpresa, dono, id, nome, endereco, EnumEmpresa.FARMACIA);
         this.abre24h = abre24h;
         this.numFuncionario = numFuncionario;
     }

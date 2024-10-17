@@ -8,7 +8,7 @@ public class Mercado extends Empresa{
     // Construtor padrão necessário para XMLDecoder
     public Mercado() {}
     public Mercado(String tipoEmpresa, int dono, int id, String nome, String endereco, String abre, String fecha, String tipoMercado) {
-        super(tipoEmpresa, dono, id, nome, endereco);
+        super(tipoEmpresa, dono, id, nome, endereco, EnumEmpresa.MERCADO);
         this.abre = abre;
         this.fecha = fecha;
         this.tipoMercado = tipoMercado;

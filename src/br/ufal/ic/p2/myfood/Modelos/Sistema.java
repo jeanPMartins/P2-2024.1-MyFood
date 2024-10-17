@@ -5,10 +5,7 @@ import br.ufal.ic.p2.myfood.Modelos.Empresa.Farmacia;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Mercado;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
-import br.ufal.ic.p2.myfood.Modelos.Usuario.Cliente;
-import br.ufal.ic.p2.myfood.Modelos.Usuario.Dono;
-import br.ufal.ic.p2.myfood.Modelos.Usuario.Entregador;
-import br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario;
+import br.ufal.ic.p2.myfood.Modelos.Usuario.*;
 
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
@@ -141,7 +138,6 @@ public class Sistema {
         usuarioID++;
     }
     public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
-        //criaçao de donos
         Dono dono = Usuario.criarUsuario(usuarioID, nome, email, senha, endereco, cpf);
         usuarios.put(dono.getId(), dono);
         usuarioID++;
@@ -192,7 +188,7 @@ public class Sistema {
         }
 
         Usuario usuario = usuarios.get(entregador);
-        if (usuario == null || !(usuario instanceof Entregador)) {
+        if (usuario == null || usuario.getTipo() != TipoUsuario.ENTREGADOR) {
             throw new NaoEntregadorException();
         }
 
@@ -273,7 +269,7 @@ public class Sistema {
         if (usuario == null) {
             return 0;
         }
-        if (!(usuario instanceof Dono)) {
+        if (usuario.getTipo() != TipoUsuario.DONO) {
             throw new UsuarioNaoPodeCriarException();
         }
 
@@ -286,7 +282,7 @@ public class Sistema {
         if (usuario == null) {
             return 0;
         }
-        if (!(usuario instanceof Dono)) {
+        if (usuario.getTipo() != TipoUsuario.DONO) {
             throw new UsuarioNaoPodeCriarException();
         }
         Mercado mercado = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre, fecha, tipoMercado);
@@ -298,7 +294,7 @@ public class Sistema {
         if (usuario == null) {
             return 0;
         }
-        if (!(usuario instanceof Dono)) {
+        if (usuario.getTipo() != TipoUsuario.DONO) {
             throw new UsuarioNaoPodeCriarException();
         }
         Farmacia farmacia = Empresa.criarEmpresa(tipoEmpresa, dono, empresaID, nome, endereco, abre24h, numFuncionario);
@@ -528,7 +524,7 @@ public class Sistema {
     }
     //Pedidos = US4
     public int criarPedido(int cliente, int empresa) throws NaoPodePedirException, PedidoJaExisteException {
-        if (usuarios.get(cliente) instanceof Dono) {
+        if (usuarios.get(cliente).getTipo() == TipoUsuario.DONO) {
             throw new NaoPodePedirException();
         }
 

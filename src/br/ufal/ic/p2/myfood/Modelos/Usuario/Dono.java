@@ -4,7 +4,7 @@ public class Dono extends Usuario {
     String cpf;
     public Dono(){}
     public Dono(int id, String nome, String email, String senha, String endereco, String cpf) {
-        super(id, nome, email, senha, endereco);
+        super(id, nome, email, senha, endereco, TipoUsuario.DONO);
         this.cpf = cpf;
     }
     public String getCpf(){

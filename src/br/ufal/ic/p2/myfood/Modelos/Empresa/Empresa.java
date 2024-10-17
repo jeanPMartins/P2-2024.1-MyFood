@@ -14,6 +14,7 @@ public class Empresa {
     private int dono;
     private String nome;
     private String endereco;
+    private EnumEmpresa tipo;
 
     public static Map<String, Empresa> empresasPorEndereco = new HashMap<>();
     public static Map<Integer, List<Empresa>> empresasPorDono = new HashMap<>();
@@ -22,12 +23,13 @@ public class Empresa {
     // Construtor padrão necessário para XMLDecoder
     public Empresa() {}
 
-    public Empresa(String tipoEmpresa, int dono, int id, String nome, String endereco) {
+    public Empresa(String tipoEmpresa, int dono, int id, String nome, String endereco, EnumEmpresa tipo) {
         this.tipoEmpresa = tipoEmpresa;
         this.dono = dono;
         this.id = id;
         this.nome = nome;
         this.endereco = endereco;
+        this.tipo = tipo;
     }
     public int getId() {
         return id;
@@ -59,6 +61,7 @@ public class Empresa {
     public void setTipoEmpresa(String tipoEmpresa) {
         this.tipoEmpresa = tipoEmpresa;
     }
+    public EnumEmpresa getTipo() {return tipo;}
 
     public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
@@ -154,6 +157,5 @@ public class Empresa {
                 }
             }
         }
-
     }
 }

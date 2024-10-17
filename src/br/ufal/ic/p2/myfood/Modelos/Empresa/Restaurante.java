@@ -6,7 +6,7 @@ public class Restaurante extends Empresa{
     // Construtor padrão necessário para XMLDecoder
     public Restaurante() {}
     public Restaurante(String tipoEmpresa, int dono, int id, String nome, String endereco, String tipoCozinha) {
-        super(tipoEmpresa, dono, id, nome, endereco);
+        super(tipoEmpresa, dono, id, nome, endereco, EnumEmpresa.RESTAURANTE);
         this.tipoCozinha = tipoCozinha;
     }
     public String getTipoCozinha() {
