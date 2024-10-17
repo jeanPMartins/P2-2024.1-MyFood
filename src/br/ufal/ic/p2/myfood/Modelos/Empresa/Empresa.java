@@ -2,8 +2,6 @@ package br.ufal.ic.p2.myfood.Modelos.Empresa;
 
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
 
-import java.time.DateTimeException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,19 +21,7 @@ public class Empresa {
     // Construtor padrão necessário para XMLDecoder
     public Empresa() {}
     public Empresa(String tipoEmpresa, int dono, int id, String nome, String endereco) {
-        this.dono = dono;
-        this.id = id;
-        this.nome = nome;
-        this.endereco = endereco;
-    }
-
-    public Empresa(int id, String nome, String endereco) {
-        this.id = id;
-        this.nome = nome;
-        this.endereco = endereco;
-    }
-
-    public Empresa(int dono, int id, String nome, String endereco) {
+        this.tipoEmpresa = tipoEmpresa;
         this.dono = dono;
         this.id = id;
         this.nome = nome;
@@ -66,6 +52,12 @@ public class Empresa {
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
+    public String getTipoEmpresa() {
+        return tipoEmpresa;
+    }
+    public void setTipoEmpresa(String tipoEmpresa) {
+        this.tipoEmpresa = tipoEmpresa;
+    }
 
     public static Restaurante criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String tipoCozinha) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
@@ -78,28 +70,52 @@ public class Empresa {
         empresasPorEndereco.put(endereco, restaurante);
         return restaurante;
     }
-    public static Mercado criarEmpresa(String tipoEmpresa,int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
+    public static Mercado criarEmpresa(String tipoEmpresa, int id, int dono, String nome, String endereco, String abre, String fecha, String tipoMercado) throws NomeInvalidoException, EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
+        if (tipoMercado == null || tipoMercado.isEmpty()) {
+            throw new TipoMercadoInvalidoException();
+        }
+        if (abre == null || fecha == null) {
+            throw new HorarioInvalidoException();
+        }
+        if (abre.isEmpty() || fecha.isEmpty()) {
+            throw new FormatoDataHoraInvalidoException();
+        }
+        if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
+            throw new FormatoDataHoraInvalidoException();
+        }
+        if (!validarHorario(abre) || !validarHorario(fecha)) {
+            throw new HorarioInvalidoException();
+        }
+
         validarEmpresa(tipoEmpresa, dono, nome, endereco);
         Mercado mercado = new Mercado(tipoEmpresa, dono, id, nome, endereco, abre, fecha, tipoMercado);
         if (!empresasPorDono.containsKey(dono)) {
             empresasPorDono.put(dono, new ArrayList<>());
         }
-        if (tipoMercado == null || tipoMercado.isEmpty()) {
-            throw new NomeInvalidoException();
-        }
-        if (abre == null || abre.isEmpty()) {
-            throw new HorarioInvalidoException();
-        }
-        if (fecha == null || fecha.isEmpty()) {
-            throw new HorarioInvalidoException();
-        }
-        if (validarHorario(fecha)) {
-            throw new HorarioInvalidoException();
-        }
         empresasPorDono.get(dono).add(mercado);
         empresasPorNome.put(nome, mercado);
         empresasPorEndereco.put(endereco, mercado);
         return mercado;
+    }
+    public static boolean validarFormatoHora(String hora) {
+        String regex = "^\\d{2}:\\d{2}$";
+        return hora.matches(regex);
+    }
+    public static boolean validarHorario(String hora) {
+        try {
+            String[] parts = hora.split(":");
+            if (parts.length != 2) return false;
+
+            int horas = Integer.parseInt(parts[0]);
+            int minutos = Integer.parseInt(parts[1]);
+
+            if (horas < 4 || horas > 23 || minutos < 0 || minutos > 59) {
+                return false;
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
     public static void validarEmpresa(String tipoEmpresa, int dono, String nome, String endereco) throws EnderecoInvalidoException, NomeInvalidoException, NomeJaExisteException, EnderecoJaExisteException, EnderecoInvalidoEmpresaException {
         if (tipoEmpresa == null || tipoEmpresa.isEmpty()){
@@ -130,12 +146,5 @@ public class Empresa {
                 }
             }
         }
-    }
-    public static boolean validarHorario(String hora){
-        String[] parts = hora.split(":");
-        if(parts.length != 2) return true;
-        int horas = Integer.parseInt(parts[0]);
-        int mins = Integer.parseInt(parts[1]);
-        return (horas < 6 || horas > 23) || (mins < 0 || mins > 59);
     }
 }

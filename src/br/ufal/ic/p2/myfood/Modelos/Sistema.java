@@ -13,8 +13,6 @@ import java.beans.XMLEncoder;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.DateTimeException;
-import java.time.LocalTime;
 import java.util.*;
 
 import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
@@ -200,27 +198,39 @@ public class Sistema {
         if (!(usuario instanceof Dono)) {
             throw new UsuarioNaoPodeCriarException();
         }
-        if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
-            throw new FormatoDataHoraInvalidoException();
-        }
-
         Mercado mercado = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre, fecha, tipoMercado);
         empresas.put(mercado.getId(), mercado);
         return empresaID++;
     }
-    public void alterarFuncionamento(int mercado, String abre, String fecha){
+    public void alterarFuncionamento(int mercado, String abre, String fecha) {
+        if (!empresas.containsKey(mercado)) {
+            throw new MercadoInvalidoException();
+        }
+
+        Empresa empresa = empresas.get(mercado);
+
+        if (!((empresa.getTipoEmpresa().equals("mercado") ))) {
+            throw new MercadoInvalidoException();
+        }
+
+        // Validação dos horários
+        if (abre == null || fecha == null) {
+            throw new HorarioInvalidoException();
+        }
+        if (abre.isEmpty() || fecha.isEmpty()) {
+            throw new FormatoDataHoraInvalidoException();
+        }
         if (!validarFormatoHora(abre) || !validarFormatoHora(fecha)) {
             throw new FormatoDataHoraInvalidoException();
         }
-        Mercado merc = (Mercado) empresas.get(mercado);
+        if (!validarHorario(abre) || !validarHorario(fecha)) {
+            throw new HorarioInvalidoException();
+        }
+
+        Mercado merc = (Mercado) empresa;
         merc.setAbre(abre);
         merc.setFecha(fecha);
     }
-    private boolean validarFormatoHora(String hora) {
-        String regex = "\\d{2}:\\d{2}";
-        return hora != null && hora.matches(regex);
-    }
-
     public String getEmpresasDoUsuario(int id) throws UsuarioNaoPodeCriarException {
         if (usuarios.get(id) instanceof Dono) {
             if(empresasPorDono.get(id) != null){
@@ -311,6 +321,7 @@ public class Sistema {
         if (!produtoPorEmpresa.containsKey(empresa)) {
             produtoPorEmpresa.put(empresa, new ArrayList<>());
         }
+//      System.out.println("Produto " + produto.getNome() + " numero " + produto.getId() + " criado" + " para a empresa numero " + produto.getEmpresa() + " ");
         produtoPorEmpresa.get(empresa).add(produto);
         produtos.put(produto.getId(), produto);
         produtoID++;
@@ -452,12 +463,22 @@ public class Sistema {
 
         List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(empresasPorNome.get(pedido.getEmpresa()).getId());
 
-        if (!produtosDaEmpresa.contains(produtos.get(produto))) {
+//        if (!produtosDaEmpresa.contains(produtos.get(produto))) {
+//            throw new ProdutoNaoPertenceException();
+//        }
+
+        if(produtos.get(produto).getEmpresa() != empresasPorNome.get(pedido.getEmpresa()).getId()){
+            System.out.println(produtos.get(produto).getEmpresa() + " X " + empresasPorNome.get(pedido.getEmpresa()).getId());
             throw new ProdutoNaoPertenceException();
         }
 
+//        System.out.println(pedidos.get(numero).getNumPedido());
+//        System.out.println(empresasPorNome.get(pedido.getEmpresa()).getId() + " " + empresasPorNome.get(pedido.getEmpresa()).getNome());
+//        System.out.println(produtos.get(produto).getId() + " " + produtos.get(produto).getNome());
+//        System.out.println(produtoPorEmpresa.get(empresasPorNome.get(pedido.getEmpresa()).getId()));
         pedido.addProduto(produtos.get(produto));
     }
+
     public String getPedidos(int numero, String atributo) throws AtributoInvalidoException, NaoExistePedidoAbertoException, AtributoNaoExisteException {
         if (!pedidos.containsKey(numero)) {
             throw new NaoExistePedidoAbertoException();

@@ -57,10 +57,10 @@ public class Pedido {
         this.produtosAdicionados = produtos;
     }
     public void addProduto(Produto produto) {
-        produtosAdicionados.add(produto);
+        this.produtosAdicionados.add(produto);
     }
     public void removeProduto(Produto produto) {
-        produtosAdicionados.remove(produto);
+        this.produtosAdicionados.remove(produto);
     }
     public ArrayList<Produto> getProdutos() {
         return produtosAdicionados;
