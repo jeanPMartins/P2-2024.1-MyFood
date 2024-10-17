@@ -1,6 +1,7 @@
 package br.ufal.ic.p2.myfood.Modelos;
 
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa;
+import br.ufal.ic.p2.myfood.Modelos.Empresa.Farmacia;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Mercado;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
@@ -39,7 +40,7 @@ public class Sistema {
         empresas.clear();
         empresasPorDono.clear();
         empresasPorEndereco.clear();
-        empresasPorNome.clear();
+//        empresasPorNome.clear();
         produtos.clear();
         produtoPorEmpresa.clear();
         pedidos.clear();
@@ -111,11 +112,11 @@ public class Sistema {
         }
 
         // Limpa e atualiza empresasPorNome e empresasPorEndereco
-        empresasPorNome.clear();
+//        empresasPorNome.clear();
         empresasPorEndereco.clear();
 
         for (Empresa empresa : empresas.values()) {
-            empresasPorNome.put(empresa.getNome(), empresa);
+//            empresasPorNome.put(empresa.getNome(), empresa);
             empresasPorEndereco.put(empresa.getEndereco(), empresa);
         }
 
@@ -202,6 +203,18 @@ public class Sistema {
         empresas.put(mercado.getId(), mercado);
         return empresaID++;
     }
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, boolean abre24h, int numFuncionario) throws UsuarioNaoPodeCriarException, NomeJaExisteException, NomeInvalidoException, EnderecoInvalidoException, EnderecoInvalidoEmpresaException, EnderecoJaExisteException {
+        Usuario usuario = usuarios.get(dono);
+        if (usuario == null) {
+            return 0;
+        }
+        if (!(usuario instanceof Dono)) {
+            throw new UsuarioNaoPodeCriarException();
+        }
+        Farmacia farmacia = Empresa.criarEmpresa(tipoEmpresa, empresaID, dono, nome, endereco, abre24h, numFuncionario);
+        empresas.put(farmacia.getId(), farmacia);
+        return empresaID++;
+    }
     public void alterarFuncionamento(int mercado, String abre, String fecha) {
         if (!empresas.containsKey(mercado)) {
             throw new MercadoInvalidoException();
@@ -280,6 +293,9 @@ public class Sistema {
                 return ((Mercado)empresa).getFecha();
             case "tipoMercado":
                 return ((Mercado)empresa).getTipoMercado();
+            case "aberto24Horas":
+                if (((Farmacia)empresa).isAbre24h()) return "true";
+                else return "false";
             default:
                 throw new AtributoInvalidoException();
         }
@@ -461,21 +477,22 @@ public class Sistema {
             throw new PedidoJaFechouException("Nao e possivel adcionar produtos a um pedido fechado");
         }
 
-        List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(empresasPorNome.get(pedido.getEmpresa()).getId());
+        List<Produto> produtosDaEmpresa = produtoPorEmpresa.get(produtos.get(produto).getEmpresa());
 
-//        if (!produtosDaEmpresa.contains(produtos.get(produto))) {
-//            throw new ProdutoNaoPertenceException();
-//        }
-
-        if(produtos.get(produto).getEmpresa() != empresasPorNome.get(pedido.getEmpresa()).getId()){
-            System.out.println(produtos.get(produto).getEmpresa() + " X " + empresasPorNome.get(pedido.getEmpresa()).getId());
+        if (!produtosDaEmpresa.contains(produtos.get(produto))) {
+            throw new ProdutoNaoPertenceException();
+        }
+        Empresa teste = null;
+        for (Empresa empresa : empresas.values()) {
+            if (empresa.getNome().equalsIgnoreCase(pedidos.get(numero).getEmpresa())) {
+                teste = empresa;
+                break;
+            }
+        }
+        if(teste.getId() != produtos.get(produto).getEmpresa()) {
             throw new ProdutoNaoPertenceException();
         }
 
-//        System.out.println(pedidos.get(numero).getNumPedido());
-//        System.out.println(empresasPorNome.get(pedido.getEmpresa()).getId() + " " + empresasPorNome.get(pedido.getEmpresa()).getNome());
-//        System.out.println(produtos.get(produto).getId() + " " + produtos.get(produto).getNome());
-//        System.out.println(produtoPorEmpresa.get(empresasPorNome.get(pedido.getEmpresa()).getId()));
         pedido.addProduto(produtos.get(produto));
     }
 

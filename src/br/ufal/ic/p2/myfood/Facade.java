@@ -77,4 +77,7 @@ public class Facade {
     public void alterarFuncionamento(int mercado, String abre, String fecha){
         sistema.alterarFuncionamento(mercado, abre, fecha);
     }
+    public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, boolean abre24h, int numFuncionario) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
+        return sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, abre24h, numFuncionario);
+    }
 }

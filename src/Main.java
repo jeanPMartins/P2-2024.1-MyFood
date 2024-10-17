@@ -12,7 +12,7 @@ public class Main {
 //                "tests/us3_2.txt",
 //                "tests/us4_1.txt",
 //                "tests/us4_2.txt",
-                "tests/us5_1.txt",
+//                "tests/us5_1.txt",
 //                "tests/us5_2.txt",
 //                "tests/us6_1.txt",
 //                "tests/us6_2.txt",
@@ -22,18 +22,18 @@ public class Main {
 //                "tests/us8_2.txt",
         };
 
-//        EasyAccept.main(new String[]{facade, "tests/us1_1.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us1_2.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us2_1.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us2_2.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us3_1.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us3_2.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us4_1.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us4_2.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us1_1.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us1_2.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us2_1.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us2_2.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us3_1.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us3_2.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us4_1.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us4_2.txt"});
         EasyAccept.main(new String[]{facade, "tests/us5_1.txt"});
         EasyAccept.main(new String[]{facade, "tests/us5_2.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us6_1.txt"});
-//        EasyAccept.main(new String[]{facade, "tests/us6_2.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us6_1.txt"});
+        EasyAccept.main(new String[]{facade, "tests/us6_2.txt"});
 //        EasyAccept.main(new String[]{facade, "tests/us7_1.txt"});
 //        EasyAccept.main(new String[]{facade, "tests/us7_2.txt"});
 //        EasyAccept.main(new String[]{facade, "tests/us8_1.txt"});
