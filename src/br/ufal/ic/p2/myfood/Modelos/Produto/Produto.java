@@ -1,4 +1,4 @@
-package br.ufal.ic.p2.myfood.Modelos;
+package br.ufal.ic.p2.myfood.Modelos.Produto;
 
 import java.util.HashMap;
 import java.util.List;

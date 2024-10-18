@@ -5,6 +5,8 @@ import br.ufal.ic.p2.myfood.Modelos.Empresa.Farmacia;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Mercado;
 import br.ufal.ic.p2.myfood.Modelos.Empresa.Restaurante;
 import br.ufal.ic.p2.myfood.Modelos.Exception.*;
+import br.ufal.ic.p2.myfood.Modelos.Pedido.Pedido;
+import br.ufal.ic.p2.myfood.Modelos.Produto.Produto;
 import br.ufal.ic.p2.myfood.Modelos.Usuario.*;
 
 import java.beans.XMLDecoder;
@@ -15,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static br.ufal.ic.p2.myfood.Modelos.Empresa.Empresa.*;
-import static br.ufal.ic.p2.myfood.Modelos.Produto.produtoPorEmpresa;
+import static br.ufal.ic.p2.myfood.Modelos.Produto.Produto.produtoPorEmpresa;
 import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.empresasPorEntregador;
 import static br.ufal.ic.p2.myfood.Modelos.Usuario.Usuario.usuariosPorEmail;
 

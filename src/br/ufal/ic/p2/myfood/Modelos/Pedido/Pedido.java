@@ -1,6 +1,7 @@
-package br.ufal.ic.p2.myfood.Modelos;
+package br.ufal.ic.p2.myfood.Modelos.Pedido;
 
-import java.io.Serializable;
+import br.ufal.ic.p2.myfood.Modelos.Produto.Produto;
+
 import java.util.ArrayList;
 
 public class Pedido {

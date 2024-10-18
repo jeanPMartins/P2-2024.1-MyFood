@@ -12,7 +12,6 @@ public class Facade {
     public void zerarSistema(){
         sistema.zerarSistema();
     }
-
     public void encerrarSistema(){
         sistema.encerrarSistema();
     }
@@ -20,15 +19,12 @@ public class Facade {
     public String getAtributoUsuario(int id, String nome) throws UsuarioNaoCadastradoException {
         return sistema.getAtributoUsuario(id, nome);
     }
-    //Cliente
     public void criarUsuario(String nome, String email, String senha, String endereco) throws NomeInvalidoException, EmailJaExisteException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException {
         sistema.criarUsuario(nome, email, senha, endereco);
     }
-    //Dono
     public void criarUsuario(String nome, String email, String senha, String endereco, String cpf) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
         sistema.criarUsuario(nome, email, senha, endereco, cpf);
     }
-    //Entregador
     public void criarUsuario(String nome, String email, String senha, String endereco, String veiculo, String placa) throws NomeInvalidoException, EmailInvalidoException, EnderecoInvalidoException, SenhaInvalidaException, CpfInvalidoException, EmailJaExisteException {
         sistema.criarUsuario(nome, email, senha, endereco, veiculo, placa);
     }
@@ -95,4 +91,5 @@ public class Facade {
     public int criarEmpresa(String tipoEmpresa, int dono, String nome, String endereco, boolean abre24h, int numFuncionario) throws EnderecoInvalidoException, NomeJaExisteException, EnderecoJaExisteException, NomeInvalidoException, UsuarioNaoPodeCriarException, EnderecoInvalidoEmpresaException {
         return sistema.criarEmpresa(tipoEmpresa, dono, nome, endereco, abre24h, numFuncionario);
     }
+
 }
